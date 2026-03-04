@@ -1,0 +1,1211 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kalkulator Panjar Biaya - PA Surabaya</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --pa-green: #0f5e43;        /* Hijau Botol (Warna Utama) */
+            --pa-gold: #cfa754;         /* Emas Lembut */
+            --pa-soft-green-bg: #f1f8e9; /* Hijau Super Soft (Background Utama) */
+            --pa-white-overlay: rgba(255, 255, 255, 0.95);
+        }
+        
+        body { 
+            background-color: var(--pa-soft-green-bg); 
+            font-family: 'Segoe UI', sans-serif; 
+            color: #333;
+            background-image: radial-gradient(#1a5c41 0.3px, transparent 0.3px);
+            background-size: 25px 25px;
+        }
+
+        /* HEADER DENGAN MOTIF ISLAMI */
+        .pa-header { 
+            background-color: var(--pa-green);
+            background-image:  
+                linear-gradient(135deg, rgba(255,255,255,0.05) 25%, transparent 25%), 
+                linear-gradient(225deg, rgba(255,255,255,0.05) 25%, transparent 25%), 
+                linear-gradient(45deg, rgba(255,255,255,0.05) 25%, transparent 25%), 
+                linear-gradient(315deg, rgba(255,255,255,0.05) 25%, transparent 25%);
+            background-position: 10px 0, 10px 0, 0 0, 0 0;
+            background-size: 20px 20px;
+            background-repeat: repeat;
+            color: white; 
+            padding: 40px 0; 
+            border-bottom: 6px solid var(--pa-gold);
+            border-radius: 0 0 40px 40px;
+            box-shadow: 0 10px 30px rgba(15, 94, 67, 0.3);
+            position: relative;
+            z-index: 10;
+        }
+    
+        .card { 
+            border: none; 
+            border-radius: 25px; 
+            box-shadow: 0 10px 40px rgba(15, 94, 67, 0.08); 
+            background: var(--pa-white-overlay); 
+            backdrop-filter: blur(5px);
+            margin-top: -30px;
+        }
+
+        .form-select, .form-control {
+            border-radius: 15px;
+            border: 1px solid #c5e1d4;
+            background-color: #ffffff;
+        }
+        .form-select:focus {
+            border-color: var(--pa-green);
+            box-shadow: 0 0 0 0.25rem rgba(15, 94, 67, 0.15);
+        }
+
+        .domisili-box { 
+            background: #ffffff; 
+            border-left: 6px solid var(--pa-gold); 
+            padding: 25px; 
+            margin-bottom: 20px; 
+            border-radius: 15px; 
+            box-shadow: 0 4px 10px rgba(0,0,0,0.02);
+            position: relative; 
+        }
+
+        .btn-tambah { 
+            background: white; 
+            color: var(--pa-green); 
+            border: 2px solid var(--pa-green); 
+            font-weight: 700; 
+            border-radius: 50px;
+            padding: 8px 25px;
+            transition: all 0.3s;
+        }
+        .btn-tambah:hover { background: var(--pa-green); color: white; }
+
+        .btn-hitung { 
+            background: linear-gradient(to right, var(--pa-green), #14805e); 
+            color: white; 
+            width: 100%; 
+            padding: 18px; 
+            font-weight: bold; 
+            font-size: 1.1rem;
+            border-radius: 50px; 
+            border: none; 
+            box-shadow: 0 10px 25px rgba(15, 94, 67, 0.2);
+            letter-spacing: 0.5px;
+        }
+        .btn-hitung:hover { transform: translateY(-2px); box-shadow: 0 12px 30px rgba(15, 94, 67, 0.3); }
+
+        .btn-hapus { 
+            color: #ffffff; 
+            background: #e74c3c; 
+            border-radius: 50%;
+            width: 32px; height: 32px;
+            display: flex; align-items: center; justify-content: center;
+            position: absolute; 
+            top: 15px; right: 15px; 
+            border: 2px solid white;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            cursor: pointer;
+            transition: 0.2s;
+            z-index: 5;
+            font-weight: bold;
+            font-size: 18px;
+            line-height: 1;
+        }
+        .btn-hapus:hover { background: #c0392b; transform: scale(1.1); }
+
+        .label-pihak { 
+            color: var(--pa-green); 
+            background: #e0f2f1;
+            padding: 6px 18px;
+            border-radius: 20px;
+            font-weight: 800; 
+            font-size: 0.85rem; 
+            text-transform: uppercase; 
+            margin-bottom: 15px; 
+            display: inline-block; 
+        }
+
+        .hidden-input { display: none; }
+        
+        .catatan-box { 
+            background-color: #f0fdf4; 
+            border-left: none;
+            border-top: 4px solid var(--pa-gold);
+            border-radius: 15px;
+        }
+        
+        .btn-cetak {
+            background: var(--pa-gold);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            padding: 10px 25px;
+            font-weight: bold;
+        }
+
+        .opsi-container {
+            border: 2px solid var(--pa-green);
+            background-color: #ffffff;
+        }
+        .form-check-input:checked {
+            background-color: var(--pa-green);
+            border-color: var(--pa-green);
+        }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        
+    
+    </style>
+</head>
+<body>
+
+<div class="pa-header text-center">
+    <div class="container">
+        <p class="mb-1" style="font-family: 'Times New Roman', serif; font-style: italic; opacity: 0.8;">
+            Bismillahirrahmanirrahim
+        </p>
+        <h3 class="fw-bold mb-1">ZAHRA (ZONA AKURAT HITUNG BIAYA BERPERKARA)</h3>
+        <p class="mb-0 medium text-white-50; bold">Pengadilan Agama Surabaya Kelas IA</p>
+        
+        </div>
+    </div>
+</div>
+
+<div class="container my-4">
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+            <div class="card p-4 shadow">
+                <div class="mb-4">
+                    <label class="form-label fw-bold">1. Jenis Perkara</label>
+                    <select id="jenisPerkara" class="form-select border-success" onchange="resetPihak()">
+                        <option value="" selected>-- Pilih Jenis Perkara --</option>
+                        <option value="gugatan">Gugatan (Cerai Gugat, Cerai Talak, Gugatan Waris, dll)</option>
+                        <option value="permohonan">Permohonan (Dispensasi Nikah, Isbat Nikah, Penetapan Ahli Waris, Perwalian, dll)</option>
+                        <option value="verzet">Verzet (Perlawanan)</option>
+                        <option value="banding">Banding </option>
+                        <option value="kasasi">Kasasi </option>
+                        <option value="gugatan_sederhana">Gugatan Sederhana</option>
+                        <option value="ps">Pemeriksaan Setempat</option>
+                        <option value="konsinyasi">Permohonan Konsinyasi</option>
+                        <option value="eksekusi">Eksekusi</option>
+                    </select>
+                </div>
+
+                <div id="opsiBanding" class="mb-4 d-none p-3 rounded shadow-sm animate__animated animate__fadeIn opsi-container">
+                    <label class="form-label fw-bold text-success mb-2">2. Pilih Metode Banding:</label>
+                    <div class="d-flex flex-column flex-md-row gap-3">
+                        <div class="form-check p-3 bg-white rounded border w-100 shadow-sm">
+                            <input class="form-check-input" type="radio" name="metodeBanding" id="bandingEcourt" value="ecourt" checked onchange="resetPihak()">
+                            <label class="form-check-label fw-bold" for="bandingEcourt">
+                                📱 E-Court / Elektronik <br>
+                            </label>
+                        </div>
+                        <div class="form-check p-3 bg-white rounded border w-100 shadow-sm">
+                            <input class="form-check-input" type="radio" name="metodeBanding" id="bandingManual" value="manual" onchange="resetPihak()">
+                            <label class="form-check-label fw-bold" for="bandingManual">
+                                📝 Manual <br>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="opsiKasasi" class="mb-4 d-none p-3 rounded shadow-sm animate__animated animate__fadeIn opsi-container">
+                    <label class="form-label fw-bold text-success mb-2">2. Pilih Metode Kasasi:</label>
+                    <div class="d-flex flex-column flex-md-row gap-3">
+                        <div class="form-check p-3 bg-white rounded border w-100 shadow-sm">
+                            <input class="form-check-input" type="radio" name="metodeKasasi" id="kasasiEcourt" value="ecourt" checked onchange="resetPihak()">
+                            <label class="form-check-label fw-bold" for="kasasiEcourt">
+                                📱 E-Court / Elektronik <br>
+                            </label>
+                        </div>
+                        <div class="form-check p-3 bg-white rounded border w-100 shadow-sm">
+                            <input class="form-check-input" type="radio" name="metodeKasasi" id="kasasiManual" value="manual" onchange="resetPihak()">
+                            <label class="form-check-label fw-bold" for="kasasiManual">
+                                📝 Manual <br>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="opsiEksekusi" class="mb-4 d-none p-3 border rounded bg-light shadow-sm animate__animated animate__fadeIn">
+                    <label class="form-label fw-bold text-danger mb-3">2. Pilih Tahapan Eksekusi (Bisa Lebih Dari Satu):</label>
+                    <div class="form-check mb-2">
+                        <input class="form-check-input chk-eksekusi" type="checkbox" value="aanmaning" id="chkAanmaning">
+                        <label class="form-check-label fw-bold" for="chkAanmaning">I. Aanmaning</label>
+                    </div>
+                    <div class="form-check mb-2">
+                        <input class="form-check-input chk-eksekusi" type="checkbox" value="sita" id="chkSita">
+                        <label class="form-check-label fw-bold" for="chkSita">II. Sita Eksekusi / Pengangkatan Sita</label>
+                    </div>
+                    <div class="form-check mb-2">
+                        <input class="form-check-input chk-eksekusi" type="checkbox" value="riil" id="chkRiil">
+                        <label class="form-check-label fw-bold" for="chkRiil">III. Eksekusi Riil / Pengosongan</label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input chk-eksekusi" type="checkbox" value="lelang" id="chkLelang">
+                        <label class="form-check-label fw-bold" for="chkLelang">IV. Eksekusi Lelang / Pembayaran Sejumlah Uang</label>
+                    </div>
+                </div>
+
+                <div class="mb-3 d-flex justify-content-between align-items-center mt-4">
+                    <label class="form-label fw-bold mb-0" id="labelRincian">2. Rincian Pihak & Alamat Domisili</label>
+                    <button class="btn btn-tambah btn-sm shadow-sm" id="btnTambahPihak" onclick="tambahPihak()">+ TAMBAH DATA</button>
+                </div>
+
+                <div id="areaDomisili"></div>
+
+                <button class="btn btn-hitung mt-4 shadow" onclick="hitungEstimasi()">HITUNG TOTAL ESTIMASI</button>
+
+                <div id="resultArea" class="result-table mt-4">
+                    <div class="alert alert-success fw-bold text-center">HASIL ESTIMASI PANJAR BIAYA</div>
+                    <table class="table table-bordered bg-white">
+                        <thead class="table-light text-center">
+                            <tr><th>URAIAN</th><th class="text-end">Jumlah</th></tr>
+                        </thead>
+                        <tbody id="detailBiaya"></tbody>
+                        <tfoot class="fw-bold text-white" style="background: var(--pa-green);">
+                            <tr><td>JUMLAH (Estimasi)</td><td class="text-end" id="totalAkhir"></td></tr>
+                        </tfoot>
+                    </table>
+                    <p id="catatanKaki" class="text-muted small mt-2 d-none">*) PMK Nomor 32 Tahun 2025 Tentang Standar Biaya Masukan Tahun Anggaran 2026</p>
+                </div>
+                
+                <div class="catatan-box mt-5 p-3 border rounded text-muted small">
+                    <strong class="text-dark">CATATAN :</strong>
+                    <ol class="mb-0 ps-3 mt-2">
+                        <li>Apabila ada pihak berada di luar wilayah hukum Pengadilan Agama Surabaya, biaya panggilan / pemberitahuan disesuaikan dengan tarif pada pengadilan agama yang dituju.</li>
+                        <li>Apabila masih ada sisa panjar akan dikembalikan, dan apabila kurang agar ditambah.</li>
+                        <li>Dalam waktu 180 hari sisa panjar tidak diambil, akan disetor ke kas negara.</li>
+                        <li>Panjar Sita dan PS tersebut untuk satu obyek tanah & bangunan dalam satu desa. Jika satu desa lebih dari 2 obyek, panjar menyesuaikan.</li>
+                        <li>Upah Jurusita, saksi dan Transportasi mengikuti SBM Kementerian Keuangan.</li>
+                    </ol>
+                </div>
+
+            </div>
+            <div class="text-center mt-4 mb-5 animate__animated animate__fadeInUp">
+                <p class="small text-muted mb-1">
+                    Dikembangkan dengan <span style="color: #e25555;">&hearts;</span> oleh:
+                </p>
+                <p class="fw-bold mb-1" style="color: var(--pa-green); letter-spacing: 1px;">PENGADILAN AGAMA SURABAYA KELAS IA</p>
+                <div class="d-inline-block p-2 px-4 rounded-pill shadow-sm" style="background: white; border: 1px solid var(--pa-gold);">
+                    <small class="text-secondary fw-bold">Jl. KETINTANG MADYA VI/3 - JAMBANGAN - SURABAYA</small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// DATA MASTER RADIUS (LENGKAP)
+const dataRadiusKab = {
+    "Aceh": { "Kabupaten Aceh Barat": 200000, "Kabupaten Aceh Barat Daya": 200000, "Kabupaten Aceh Besar": 200000, "Kota Banda Aceh": 200000 },
+    "Sumatera Utara": { "Kota Medan": 200000, "Kabupaten Deli Serdang": 200000 },
+    "Sumatera Barat": { "Kota Padang": 200000, "Kota Bukittinggi": 200000 },
+    "Riau": { "Kota Pekanbaru": 200000, "Kota Dumai": 200000 },
+    "Jambi": { "Kota Jambi": 200000 },
+    "Sumatera Selatan": { "Kota Palembang": 200000 },
+    "Bengkulu": { "Kota Bengkulu": 200000 },
+    "Lampung": { "Kota Bandar Lampung": 200000 },
+    "Kepulauan Bangka Belitung": { "Kota Pangkal Pinang": 200000 },
+    "Kepulauan Riau": { "Kota Batam": 200000, "Kota Tanjung Pinang": 200000 },
+    "DKI Jakarta": { "Jakarta Pusat": 250000, "Jakarta Utara": 250000, "Jakarta Barat": 250000, "Jakarta Selatan": 250000, "Jakarta Timur": 250000 },
+    "Jawa Barat": { "Kota Bandung": 200000, "Kota Bekasi": 200000, "Kota Bogor": 200000, "Kota Depok": 200000 },
+    "Banten": { "Kota Tangerang": 200000, "Kota Serang": 200000 },
+    "Jawa Tengah": { "Kota Semarang": 200000, "Kota Surakarta": 200000 },
+    "DI Yogyakarta": { "Kota Yogyakarta": 200000, "Kabupaten Sleman": 200000 },
+    "Jawa Timur": {
+        "Kota Surabaya": 120000, "Kabupaten Sidoarjo": 120000, "Kabupaten Gresik": 100000, "Kabupaten Bangkalan": 107500, "Kabupaten Lamongan": 102500,
+        "Kabupaten Banyuwangi": 120000, "Kabupaten Blitar": 130000, "Kabupaten Bojonegoro": 110000,
+        "Kabupaten Bondowoso": 125000, "Kabupaten Jember": 122500, "Kabupaten Jombang": 125000,
+        "Kabupaten Kediri": 117500, "Kabupaten Lumajang": 112500, "Kabupaten Madiun": 110000,
+        "Kabupaten Magetan": 110000, "Kabupaten Malang": 115000, "Kabupaten Mojokerto": 107500,
+        "Kabupaten Nganjuk": 112500, "Kabupaten Ngawi": 110000, "Kabupaten Pacitan": 110000,
+        "Kabupaten Pamekasan": 112500, "Kabupaten Pasuruan": 107500, "Kabupaten Ponorogo": 110000,
+        "Kabupaten Probolinggo": 112500, "Kabupaten Sampang": 107500, "Kabupaten Situbondo": 125000,
+        "Kabupaten Sumenep": 110000, "Kabupaten Trenggalek": 110000, "Kabupaten Tuban": 107500,
+        "Kabupaten Tulungagung": 110000, "Kota Batu": 115000, "Kota Blitar": 130000, "Kota Kediri": 117500,
+        "Kota Madiun": 110000, "Kota Malang": 115000, "Kota Mojokerto": 112500, "Kota Pasuruan": 107500, "Kota Probolinggo": 112500 
+    },
+    "Bali": { "Kota Denpasar": 200000 },
+    "Nusa Tenggara Barat": { "Kota Mataram": 200000 },
+    "Nusa Tenggara Timur": { "Kota Kupang": 200000 },
+    "Kalimantan Barat": { "Kota Pontianak": 200000 },
+    "Kalimantan Tengah": { "Kota Palangka Raya": 200000 },
+    "Kalimantan Selatan": { "Kota Banjarmasin": 200000 },
+    "Kalimantan Timur": { "Kota Samarinda": 200000, "Kota Balikpapan": 200000 },
+    "Kalimantan Utara": { "Kota Tarakan": 200000 },
+    "Sulawesi Utara": { "Kota Manado": 200000 },
+    "Sulawesi Tengah": { "Kota Palu": 200000 },
+    "Sulawesi Selatan": { "Kota Makassar": 200000 },
+    "Sulawesi Tenggara": { "Kota Kendari": 200000 },
+    "Gorontalo": { "Kota Gorontalo": 200000 },
+    "Sulawesi Barat": { "Kabupaten Mamuju": 200000 },
+    "Maluku": { "Kota Ambon": 200000 },
+    "Maluku Utara": { "Kota Ternate": 200000 },
+    "Papua": { "Kota Jayapura": 200000 },
+    "Papua Barat": { "Kabupaten Manokwari": 200000 },
+    "Papua Selatan": { "Kabupaten Merauke": 200000 },
+    "Papua Tengah": { "Kabupaten Nabire": 200000 },
+    "Papua Pegunungan": { "Kabupaten Jayawijaya": 200000 },
+    "Papua Barat Daya": { "Kota Sorong": 200000 }
+};
+
+// DATA DETAIL KELURAHAN (KHUSUS PS/EKSEKUSI/KONSINYASI/BANDING-KASASI MANUAL)
+const dataRadiusKel = {
+    "Jawa Timur": {
+        "Kota Surabaya": {
+            "Asemrowo": [{ n: "Asemrowo", r: 100000 }, { n: "Genting Kalianak", r: 100000 }, { n: "Tambak Sarioso", r: 100000 }],
+            "Benowo": [{ n: "Kandangan", r: 100000 }, { n: "Romokalisari", r: 100000 }, { n: "Sememi", r: 100000 }, { n: "Tambak Osowilangun", r: 100000 }],
+            "Bubutan": [{ n: "Alun-Alun Contong", r: 100000 }, { n: "Bubutan", r: 100000 }, { n: "Gundih", r: 100000 }, { n: "Jepara", r: 100000 }, { n: "Tembok Dukuh", r: 100000 }],
+            "Bulak": [{ n: "Bulak", r: 100000 }, { n: "Kedungcowek", r: 100000 }, { n: "Kenjeran", r: 100000 }, { n: "Sukolilo Baru", r: 100000 }],
+            "Dukuh Pakis": [{ n: "Dukuh Kupang", r: 100000 }, { n: "Dukuh Pakis", r: 100000 }, { n: "Gunung Sari", r: 100000 }, { n: "Pradah Kalikendal", r: 100000 }],
+            "Gayungan": [{ n: "Dukuh Menanggal", r: 100000 }, { n: "Gayungan", r: 100000 }, { n: "Ketintang", r: 100000 }, { n: "Menanggal", r: 100000 }],
+            "Genteng": [{ n: "Embong Kaliasin", r: 100000 }, { n: "Genteng", r: 100000 }, { n: "Kapasari", r: 100000 }, { n: "Ketabang", r: 100000 }, { n: "Peneleh", r: 100000 }],
+            "Gubeng": [{ n: "Airlangga", r: 100000 }, { n: "Barata Jaya", r: 100000 }, { n: "Gubeng", r: 100000 }, { n: "Kertajaya", r: 100000 }, { n: "Mojo", r: 100000 }, { n: "Pucangsewu", r: 100000 }],
+            "Gunung Anyar": [{ n: "Gunung Anyar", r: 100000 }, { n: "Gunung Anyar Tambak", r: 100000 }, { n: "Rungkut Menanggal", r: 100000 }, { n: "Rungkut Tengah", r: 100000 }],
+            "Jambangan": [{ n: "Jambangan", r: 100000 }, { n: "Karah", r: 100000 }, { n: "Kebonsari", r: 100000 }, { n: "Pagesangan", r: 100000 }],
+            "Karang Pilang": [{ n: "Karang Pilang", r: 100000 }, { n: "Kebraon", r: 100000 }, { n: "Kedurus", r: 100000 }, { n: "Warugunung", r: 100000 }],
+            "Kenjeran": [{ n: "Bulakbanteng", r: 100000 }, { n: "Tambakwedi", r: 100000 }, { n: "Tanah Kalikedinding", r: 100000 }, { n: "Sidotopo Wetan", r: 100000 }],
+            "Krembangan": [{ n: "Dupak", r: 100000 }, { n: "Kemayoran", r: 100000 }, { n: "Krembangan Selatan", r: 100000 }, { n: "Morokrembangan", r: 100000 }, { n: "Perak Barat", r: 100000 }],
+            "Lakarsantri": [{ n: "Bangkingan", r: 100000 }, { n: "Jeruk", r: 100000 }, { n: "Lakarsantri", r: 100000 }, { n: "Lidah Kulon", r: 100000 }, { n: "Lidah Wetan", r: 100000 }, { n: "Sumur Welut", r: 100000 }],
+            "Mulyorejo": [{ n: "Dukuh Sutorejo", r: 100000 }, { n: "Kalijudan", r: 100000 }, { n: "Kalisari", r: 100000 }, { n: "Kejawan Putih Tambak", r: 100000 }, { n: "Manyar Sabrangan", r: 100000 }, { n: "Mulyorejo", r: 100000 }],
+            "Pabean Cantian": [{ n: "Bongkaran", r: 100000 }, { n: "Krembangan Utara", r: 100000 }, { n: "Nyamplungan", r: 100000 }, { n: "Tanjung Perak", r: 100000 }],
+            "Pakal": [{ n: "Babat Jerawat", r: 100000 }, { n: "Benowo", r: 100000 }, { n: "Pakal", r: 100000 }, { n: "Sumberejo", r: 100000 }],
+            "Rungkut": [{ n: "Kali Rungkut", r: 100000 }, { n: "Kedung Baruk", r: 100000 }, { n: "Medokan Ayu", r: 100000 }, { n: "Penjaringan Sari", r: 100000 }, { n: "Rungkut Kidul", r: 100000 }, { n: "Wonorejo", r: 100000 }],
+            "Sambikerep": [{ n: "Bringin", r: 100000 }, { n: "Made", r: 100000 }, { n: "Lontar", r: 100000 }, { n: "Sambikerep", r: 100000 }],
+            "Sawahan": [{ n: "Banyu Urip", r: 100000 }, { n: "Kupang Krajan", r: 100000 }, { n: "Pakis", r: 100000 }, { n: "Patemon", r: 100000 }, { n: "Putat Jaya", r: 100000 }, { n: "Sawahan", r: 100000 }],
+            "Semampir": [{ n: "Ampel", r: 100000 }, { n: "Pegirian", r: 100000 }, { n: "Sidotopo", r: 100000 }, { n: "Ujung", r: 100000 }, { n: "Wonokusumo", r: 100000 }],
+            "Simokerto": [{ n: "Kapasan", r: 100000 }, { n: "Sidodadi", r: 100000 }, { n: "Simokerto", r: 100000 }, { n: "Simolawang", r: 100000 }, { n: "Tambakrejo", r: 100000 }],
+            "Sukolilo": [{ n: "Gebang Putih", r: 100000 }, { n: "Keputih", r: 100000 }, { n: "Klampisngasem", r: 100000 }, { n: "Medokan Semampir", r: 100000 }, { n: "Menur Pumpungan", r: 100000 }, { n: "Nginden Jangkungan", r: 100000 }, { n: "Semolowaru", r: 100000 }],
+            "Sukomanunggal": [{ n: "Putatgede", r: 100000 }, { n: "Simomulyo", r: 100000 }, { n: "Simomulyo Baru", r: 100000 }, { n: "Sonokwijenan", r: 100000 }, { n: "Sukomanunggal", r: 100000 }, { n: "Tanjungsari", r: 100000 }],
+            "Tambaksari": [{ n: "Dukuh Setro", r: 100000 }, { n: "Gading", r: 100000 }, { n: "Kapas Madya", r: 100000 }, { n: "Pacarkeling", r: 100000 }, { n: "Pacarkembang", r: 100000 }, { n: "Ploso", r: 100000 }, { n: "Rangkah", r: 100000 }, { n: "Tambaksari", r: 100000 }],
+            "Tandes": [{ n: "Balongsari", r: 100000 }, { n: "Banjar Sugihan", r: 100000 }, { n: "Karang Poh", r: 100000 }, { n: "Manukan Kulon", r: 100000 }, { n: "Manukan Wetan", r: 100000 }, { n: "Tandes", r: 100000 }],
+            "Tegalsari": [{ n: "Dr. Soetomo", r: 100000 }, { n: "Kedungdoro", r: 100000 }, { n: "Keputran", r: 100000 }, { n: "Tegalsari", r: 100000 }, { n: "Wonorejo", r: 100000 }],
+            "Tenggilis Mejoyo": [{ n: "Kendangsari", r: 100000 }, { n: "Kutisari", r: 100000 }, { n: "Panjang Jiwo", r: 100000 }, { n: "Tenggilis Mejoyo", r: 100000 }],
+            "Wiyung": [{ n: "Babatan", r: 100000 }, { n: "Balasklumprik", r: 100000 }, { n: "Jajar Tunggal", r: 100000 }, { n: "Wiyung", r: 100000 }],
+            "Wonocolo": [{ n: "Bendul Merisi", r: 100000 }, { n: "Jemur Wonosari", r: 100000 }, { n: "Margorejo", r: 100000 }, { n: "Sidosermo", r: 100000 }, { n: "Siwalan Kerto", r: 100000 }],
+            "Wonokromo": [{ n: "Darmo", r: 100000 }, { n: "Jagir", r: 100000 }, { n: "Ngagel", r: 100000 }, { n: "Ngagelrejo", r: 100000 }, { n: "Sawunggaling", r: 100000 }, { n: "Wonokromo", r: 100000 }]
+        }
+    }
+};
+
+const BIAYA_LUAR_NEGERI = 5128000;
+let jumlahPihak = 0;
+
+function resetPihak() {
+    document.getElementById('areaDomisili').innerHTML = '';
+    jumlahPihak = 0;
+    document.getElementById('resultArea').style.display = 'none';
+const btnCetak = document.getElementById('btnCetak');
+if (btnCetak) {
+    btnCetak.style.display = 'none';}
+    
+    const jenis = document.getElementById('jenisPerkara').value;
+    const opsiEks = document.getElementById('opsiEksekusi');
+    const opsiBanding = document.getElementById('opsiBanding');
+    const opsiKasasi = document.getElementById('opsiKasasi');
+    
+    if (opsiEks) opsiEks.classList.add('d-none');
+    if (opsiBanding) opsiBanding.classList.add('d-none');
+    if (opsiKasasi) opsiKasasi.classList.add('d-none');
+    document.getElementById('catatanKaki').classList.add('d-none');
+
+    if (!jenis) {
+        document.getElementById('labelRincian').innerText = "Rincian Pihak & Alamat Domisili";
+        return; 
+    }
+
+    // Penyesuaian UI Teks Berdasarkan Perkara
+    if (jenis === 'ps' || jenis === 'eksekusi') {
+        document.getElementById('labelRincian').innerText = "Rincian Lokasi Obyek / Alamat Domisili";
+    } else {
+        document.getElementById('labelRincian').innerText = "Rincian Pihak & Alamat Domisili";
+    }
+    
+    if (jenis === 'eksekusi') {
+        opsiEks.classList.remove('d-none');
+        document.querySelectorAll('.chk-eksekusi').forEach(el => el.checked = false);
+    }
+    
+    // Tampilkan opsi Banding
+    if (jenis === 'banding') {
+        opsiBanding.classList.remove('d-none');
+    }
+
+    // Tampilkan opsi Kasasi
+    if (jenis === 'kasasi') {
+        opsiKasasi.classList.remove('d-none');
+    }
+
+    if (['ps', 'konsinyasi', 'eksekusi', 'banding', 'kasasi'].includes(jenis)) {
+        document.getElementById('catatanKaki').classList.remove('d-none');
+    }
+    
+    tambahPihak();
+}
+
+function tambahPihak() {
+    const jenisPerkara = document.getElementById('jenisPerkara').value;
+    if (!jenisPerkara) {
+        alert("Silakan pilih 'Jenis Perkara' terlebih dahulu di bagian atas!");
+        return;
+    }
+
+    jumlahPihak++;
+    const container = document.getElementById('areaDomisili');
+    
+    // Cek apakah mode input detail (Kec/Kel) diperlukan
+    let isDetailLoc = (jenisPerkara === 'ps' || jenisPerkara === 'konsinyasi' || jenisPerkara === 'eksekusi');
+    if (jenisPerkara === 'banding' && document.getElementById('bandingManual').checked) isDetailLoc = true;
+    if (jenisPerkara === 'kasasi' && document.getElementById('kasasiManual').checked) isDetailLoc = true;
+    
+    const div = document.createElement('div');
+    div.className = 'domisili-box animate__animated animate__fadeIn';
+    div.id = `box_pihak_${jumlahPihak}`;
+
+    let opsiJenis = `<option value="">-- Pilih --</option>`;
+    let opsiLokasi = `
+        <option value="">-- Pilih --</option>
+        <option value="DN">Dalam Negeri</option>
+        <option value="LN">Luar Negeri</option>
+    `;
+    
+    if (jenisPerkara === 'gugatan' || jenisPerkara === 'gugatan_sederhana') {
+        opsiJenis += `<option value="Penggugat">Penggugat</option><option value="Tergugat">Tergugat</option><option value="Turut Tergugat">Turut Tergugat</option>`;
+        if (jenisPerkara === 'gugatan') { 
+            opsiLokasi += `<option value="GHOIB">Tidak diketahui keberadaannya</option>`;
+        }
+    } else if (jenisPerkara === 'verzet') {
+        opsiJenis += `<option value="Pelawan">Pelawan (Semula Tergugat)</option><option value="Terlawan">Terlawan (Semula Penggugat)</option><option value="Turut Terlawan">Turut Terlawan</option>`;
+    } else if (jenisPerkara === 'permohonan' ) {
+        opsiJenis += `<option value="Pemohon">Pemohon</option>`;
+    } else if (jenisPerkara === 'konsinyasi') {
+        opsiJenis += `<option value="Pemohon">Pemohon</option><option value="Termohon">Termohon</option>`;
+    } else if (jenisPerkara === 'eksekusi') {
+        opsiJenis += `<option value="Obyek Eksekusi">Obyek Eksekusi</option>`;
+    } else if (jenisPerkara === 'ps') {
+        opsiJenis += `<option value="Obyek Sengketa">Obyek Sengketa</option>`;
+    } else if (jenisPerkara === 'banding') {
+        opsiJenis += `<option value="Pembanding">Pembanding</option><option value="Terbanding">Terbanding</option>`;
+    } else if (jenisPerkara === 'kasasi') {
+        opsiJenis += `<option value="Pemohon Kasasi">Pemohon Kasasi</option><option value="Termohon Kasasi">Termohon Kasasi</option>`;
+    }
+
+    div.innerHTML = `
+        <span class="label-pihak">Data #${jumlahPihak}</span>
+        ${jumlahPihak > 1 ? `<button class="btn-hapus" onclick="hapusPihak('${div.id}')">&times;</button>` : ''}
+        <div class="row g-2">
+            <div class="col-md-3">
+                <label class="small fw-bold">Jenis Pihak / Obyek</label>
+                <select class="form-select form-select-sm sel-jenis-pihak">${opsiJenis}</select>
+            </div>
+            <div class="col-md-3">
+                <label class="small fw-bold">Lokasi</label>
+                <select class="form-select form-select-sm sel-lokasi" onchange="toggleLokasi(this)">
+                    ${opsiLokasi}
+                </select>
+            </div>
+            <div class="col-md-6 container-dn hidden-input">
+                <div class="row g-2">
+                    <div class="col-6">
+                        <label class="small fw-bold">Provinsi</label>
+                        <select class="form-select form-select-sm sel-prov" onchange="updateKab(this)"><option value="">-- Pilih --</option></select>
+                    </div>
+                    <div class="col-6">
+                        <label class="small fw-bold">Kab/Kota</label>
+                        <select class="form-select form-select-sm sel-kab" disabled onchange="updateKec(this)"><option value="0">-- Pilih --</option></select>
+                    </div>
+                    
+                    <div class="col-6" style="display: ${isDetailLoc ? 'block' : 'none'};">
+                        <label class="small fw-bold">Kecamatan</label>
+                        <select class="form-select form-select-sm sel-kec" disabled onchange="updateKel(this)"><option value="">-- Pilih --</option></select>
+                    </div>
+                    <div class="col-6" style="display: ${isDetailLoc ? 'block' : 'none'};">
+                        <label class="small fw-bold">Kelurahan</label>
+                        <select class="form-select form-select-sm sel-kel" disabled><option value="0">-- Pilih --</option></select>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 container-ln hidden-input">
+                <div class="alert alert-info mb-0 py-2 small">
+                    <strong>Informasi:</strong> Biaya Luar Negeri (Rogatori) bersifat estimasi.
+                    <input type="hidden" class="val-ln" value="${BIAYA_LUAR_NEGERI}">
+                </div>
+            </div>
+            <div class="col-md-6 container-ghoib hidden-input">
+                <div class="alert alert-warning mb-0 py-2 small">
+                    <strong>Informasi (Ghoib):</strong> Panggilan dan pemberitahuan akan dilakukan melalui Massmedia.
+                </div>
+            </div>
+        </div>`;
+    container.appendChild(div);
+}
+
+function toggleLokasi(el) {
+    const parent = el.closest('.domisili-box');
+    const dn = parent.querySelector('.container-dn');
+    const ln = parent.querySelector('.container-ln');
+    const ghoib = parent.querySelector('.container-ghoib');
+    const prov = parent.querySelector('.sel-prov');
+
+    if (el.value === "DN") {
+        dn.classList.remove('hidden-input'); ln.classList.add('hidden-input'); if(ghoib) ghoib.classList.add('hidden-input');
+        prov.innerHTML = '<option value="">-- Pilih --</option>';
+        Object.keys(dataRadiusKab).forEach(p => { prov.innerHTML += `<option value="${p}">${p}</option>`; });
+    } else if (el.value === "LN") {
+        dn.classList.add('hidden-input'); ln.classList.remove('hidden-input'); if(ghoib) ghoib.classList.add('hidden-input');
+    } else if (el.value === "GHOIB") {
+        dn.classList.add('hidden-input'); ln.classList.add('hidden-input'); if(ghoib) ghoib.classList.remove('hidden-input');
+    } else {
+        dn.classList.add('hidden-input'); ln.classList.add('hidden-input'); if(ghoib) ghoib.classList.add('hidden-input');
+    }
+}
+
+function updateKab(el) {
+    const parent = el.closest('.domisili-box');
+    const jenis = document.getElementById('jenisPerkara').value;
+    const prov = el.value;
+    const kab = parent.querySelector('.sel-kab');
+    const kec = parent.querySelector('.sel-kec');
+    const kel = parent.querySelector('.sel-kel');
+    
+    // Reset child inputs
+    kab.innerHTML = '<option value="0">-- Pilih --</option>';
+    if(kec) { kec.innerHTML = '<option value="">-- Pilih --</option>'; kec.disabled = true; }
+    if(kel) { kel.innerHTML = '<option value="0">-- Pilih --</option>'; kel.disabled = true; }
+
+    // Cek apakah ini mode detail
+    let isDetailMode = (jenis === 'ps' || jenis === 'konsinyasi' || jenis === 'eksekusi');
+    if (jenis === 'banding' && document.getElementById('bandingManual').checked) isDetailMode = true;
+    if (jenis === 'kasasi' && document.getElementById('kasasiManual').checked) isDetailMode = true;
+
+    if (prov) {
+        kab.disabled = false;
+        
+        if (isDetailMode && dataRadiusKel[prov]) {
+            // Provinsi ada di data detail (misal Jawa Timur)
+            Object.keys(dataRadiusKel[prov]).forEach(k => { kab.innerHTML += `<option value="${k}">${k}</option>`; });
+        } else {
+            // Provinsi tidak ada di data detail, pakai data umum (Radius otomatis II nanti)
+            if(dataRadiusKab[prov]) {
+                Object.keys(dataRadiusKab[prov]).forEach(k => { kab.innerHTML += `<option value="${dataRadiusKab[prov][k]}">${k}</option>`; });
+            }
+        }
+    } else { kab.disabled = true; }
+}
+
+function updateKec(el) {
+    const parent = el.closest('.domisili-box');
+    const prov = parent.querySelector('.sel-prov').value;
+    const kab = el.value;
+    const kec = parent.querySelector('.sel-kec');
+    
+    if (!kec) return; // Bukan mode detail UI
+
+    kec.innerHTML = '<option value="">-- Pilih --</option>';
+    
+    // Cek ketersediaan data detail
+    if (kab && kab !== "0" && dataRadiusKel[prov] && dataRadiusKel[prov][kab]) {
+        kec.disabled = false;
+        Object.keys(dataRadiusKel[prov][kab]).forEach(kc => { kec.innerHTML += `<option value="${kc}">${kc}</option>`; });
+    } else { 
+        kec.disabled = true; 
+    }
+}
+
+function updateKel(el) {
+    const parent = el.closest('.domisili-box');
+    const prov = parent.querySelector('.sel-prov').value;
+    const kab = parent.querySelector('.sel-kab').value;
+    const kec = el.value;
+    const kel = parent.querySelector('.sel-kel');
+    
+    if (!kel) return;
+
+    kel.innerHTML = '<option value="0">-- Pilih --</option>';
+    if (kec && dataRadiusKel[prov] && dataRadiusKel[prov][kab] && dataRadiusKel[prov][kab][kec]) {
+        kel.disabled = false;
+        dataRadiusKel[prov][kab][kec].forEach(kl => { kel.innerHTML += `<option value="${kl.r}">${kl.n}</option>`; });
+    } else { kel.disabled = true; }
+}
+
+function hapusPihak(id) { document.getElementById(id).remove(); }
+
+function hitungEstimasi() {
+    const jenis = document.getElementById("jenisPerkara").value;
+    if (!jenis) {
+        alert("Silakan pilih 'Jenis Perkara' terlebih dahulu di bagian atas!");
+        return;
+    }
+
+    const boxes = document.querySelectorAll('.domisili-box');
+    if (boxes.length === 0) {
+        alert("Silakan tambahkan data pihak/obyek terlebih dahulu!");
+        return;
+    }
+
+    const jumlahData = boxes.length;
+    let dataPihak = [];
+
+    for (let box of boxes) {
+        const jenisPihak = box.querySelector('.sel-jenis-pihak').value;
+        if (!jenisPihak) {
+            alert("Harap pilih Jenis Pihak/Obyek pada semua data yang Anda masukkan!");
+            return;
+        }
+
+        const lokasi = box.querySelector('.sel-lokasi').value;
+        let radius = 0;
+        let isRadius1 = false; // Default Radius II (Jauh)
+
+        if (lokasi === "DN") {
+            const selKec = box.querySelector('.sel-kec');
+            const selKel = box.querySelector('.sel-kel');
+            const isInputDetail = selKec && !selKec.disabled && selKec.value !== "";
+
+            if (isInputDetail) {
+                // Mode Detail (PS / Banding Manual / Kasasi Manual / Eksekusi)
+                const kec = selKec.value;
+                const kel = selKel.value;
+                
+                if (!kec || kel === "0") { 
+                    alert("Lengkapi pilihan domisili/obyek hingga Kecamatan dan Kelurahan!"); 
+                    return; 
+                }
+                
+                // DEFISINI RADIUS I (DEKAT)
+                const radius1Kecamatan = ["Dukuh Pakis", "Jambangan", "Wonocolo", "Gayungan", "Wonokromo", "Karang Pilang", "Wiyung"];
+                isRadius1 = radius1Kecamatan.includes(kec);
+                
+                radius = parseInt(selKel.value); // Untuk PS ambil value rupiah
+                
+            } else {
+                // Mode Umum (Kabupaten saja)
+                const valKab = box.querySelector('.sel-kab').value;
+                radius = parseInt(valKab);
+                if (valKab === "0" || isNaN(radius)) { alert("Lengkapi pilihan Provinsi dan Kabupaten/Kota!"); return; }
+            }
+        } else if (lokasi === "LN") {
+            radius = parseInt(box.querySelector('.val-ln').value);
+            isRadius1 = false;
+        } else if (lokasi === "GHOIB") {
+            radius = 0;
+            isRadius1 = false;
+        } else {
+            alert("Pilih lokasi untuk semua inputan!"); return;
+        }
+
+        dataPihak.push({ jenis: jenisPihak, radius: radius, isRadius1: isRadius1, lokasi: lokasi });
+    }
+
+    let grandTotal = 0;
+    let htmlDetail = '';
+
+    const pendaftaran = 30000;
+    const atk = 150000;
+    const redaksi = 10000;
+    const materai = 10000;
+    
+    switch(jenis) {
+        case 'kasasi':
+            let isKasasiEcourt = document.getElementById('kasasiEcourt').checked;
+            
+            let hasPemohonK = false;
+            let hasTermohonK = false;
+            let allKasasiRadius1 = true; 
+
+            for (let p of dataPihak) {
+                if (p.jenis === 'Pemohon Kasasi') hasPemohonK = true;
+                if (p.jenis === 'Termohon Kasasi') hasTermohonK = true;
+                if (p.lokasi === 'LN' || p.isRadius1 === false) {
+                    allKasasiRadius1 = false;
+                }
+            }
+
+            if (!hasPemohonK || !hasTermohonK) {
+                alert("Perhatian: Harap masukkan data Pemohon Kasasi dan Termohon Kasasi!"); return;
+            }
+
+            if (isKasasiEcourt) {
+                // TABEL KASASI E-COURT (Fixed Rp 600.000)
+                grandTotal = 600000;
+                htmlDetail = `
+                    <tr><td colspan="2" class="fw-bold bg-light">XI. PANJAR BIAYA KASASI E-COURT</td></tr>
+                    <tr><td>1. Biaya pendaftaran permohonan kasasi (HHK C2)</td><td class="text-end">Rp 50.000</td></tr>
+                    <tr><td>2. Biaya pemberitahuan kasasi ke T</td><td class="text-end">Rp 20.000</td></tr>
+                    <tr><td>3. PNBP pemberitahuan kasasi</td><td class="text-end">Rp 10.000</td></tr>
+                    <tr><td>4. Biaya penyampaian memori kasasi ke T</td><td class="text-end">Rp 20.000</td></tr>
+                    <tr><td>5. PNBP penyampaian memori kasasi</td><td class="text-end">Rp 10.000</td></tr>
+                    <tr><td>6. Biaya penyampaian kontra memori kasasi ke P</td><td class="text-end">Rp 20.000</td></tr>
+                    <tr><td>7. PNBP penyampaian kontra memori</td><td class="text-end">Rp 10.000</td></tr>
+                    <tr><td>8. Biaya yang dikirim ke Mahkamah Agung</td><td class="text-end">Rp 400.000</td></tr>
+                    <tr><td>9. Biaya penyampaian isi putusan kasasi P & T</td><td class="text-end">Rp 40.000</td></tr>
+                    <tr><td>10. PNBP penyampaian isi putusan kasasi P & T</td><td class="text-end">Rp 20.000</td></tr>
+                `;
+            } else {
+                // TABEL KASASI MANUAL
+                let isKRadius2 = !allKasasiRadius1;
+                
+                let b_pbt_kasasi = isKRadius2 ? 250000 : 200000;
+                let b_memori_k = isKRadius2 ? 250000 : 200000;
+                let b_kontra_k = isKRadius2 ? 250000 : 200000;
+                let b_kirim_ma = 500000;
+                let b_putusan_k = isKRadius2 ? 500000 : 400000; // 2 orang
+                
+                grandTotal = 50000 + b_pbt_kasasi + 10000 + b_memori_k + 10000 + b_kontra_k + 10000 + b_kirim_ma + b_putusan_k + 20000;
+
+                htmlDetail = `
+                    <tr><td colspan="2" class="fw-bold bg-light">X. PANJAR BIAYA KASASI MANUAL (${isKRadius2 ? 'RADIUS II' : 'RADIUS I'})</td></tr>
+                    <tr><td>1. Biaya pendaftaran permohonan kasasi (HHK C2)</td><td class="text-end">Rp 50.000</td></tr>
+                    <tr><td>2. Biaya pemberitahuan kasasi ke T</td><td class="text-end fw-bold text-success">Rp ${b_pbt_kasasi.toLocaleString('id-ID')}</td></tr>
+                    <tr><td>3. PNBP pemberitahuan kasasi</td><td class="text-end">Rp 10.000</td></tr>
+                    <tr><td>4. Biaya penyampaian memori kasasi ke T</td><td class="text-end fw-bold text-success">Rp ${b_memori_k.toLocaleString('id-ID')}</td></tr>
+                    <tr><td>5. PNBP penyampaian memori kasasi</td><td class="text-end">Rp 10.000</td></tr>
+                    <tr><td>6. Biaya penyampaian kontra memori kasasi ke P</td><td class="text-end fw-bold text-success">Rp ${b_kontra_k.toLocaleString('id-ID')}</td></tr>
+                    <tr><td>7. PNBP penyampaian kontra memori</td><td class="text-end">Rp 10.000</td></tr>
+                    <tr><td>8. Biaya yang dikirim ke Mahkamah Agung</td><td class="text-end">Rp 500.000</td></tr>
+                    <tr><td>9. Biaya penyampaian isi putusan kasasi P & T</td><td class="text-end fw-bold text-success">Rp ${b_putusan_k.toLocaleString('id-ID')}</td></tr>
+                    <tr><td>10. PNBP penyampaian isi putusan kasasi P & T</td><td class="text-end">Rp 20.000</td></tr>
+                `;
+            }
+            break;
+
+        case 'banding':
+            // Logika Banding
+            let isEcourt = document.getElementById('bandingEcourt').checked;
+            let hasPembanding = false;
+            let hasTerbanding = false;
+            let allRadius1 = true; 
+
+            for (let p of dataPihak) {
+                if (p.jenis === 'Pembanding') hasPembanding = true;
+                if (p.jenis === 'Terbanding') hasTerbanding = true;
+                if (p.lokasi === 'LN' || p.isRadius1 === false) {
+                    allRadius1 = false;
+                }
+            }
+
+            if (!hasPembanding || !hasTerbanding) {
+                alert("Perhatian: Harap masukkan data Pembanding dan Terbanding!"); return;
+            }
+
+            if (isEcourt) {
+                grandTotal = 530000;
+                htmlDetail = `
+                    <tr><td colspan="2" class="fw-bold bg-light">IX. PANJAR BIAYA BANDING E-COURT</td></tr>
+                    <tr><td>1. Biaya pendaftaran permohonan banding (HHK)</td><td class="text-end">Rp 50.000</td></tr>
+                    <tr><td>2. PNBP Pendaftaran banding</td><td class="text-end">Rp 10.000</td></tr>
+                    <tr><td>3. Biaya pemberitahuan banding ke Terbanding</td><td class="text-end">Rp 20.000</td></tr>
+                    <tr><td>4. PNBP pemberitahuan banding</td><td class="text-end">Rp 10.000</td></tr>
+                    <tr><td>5. Biaya penyampaian memori banding ke Terbanding</td><td class="text-end">Rp 20.000</td></tr>
+                    <tr><td>6. PNBP penyampaian memori banding</td><td class="text-end">Rp 10.000</td></tr>
+                    <tr><td>7. Biaya penyampaian kontra memori banding ke P</td><td class="text-end">Rp 20.000</td></tr>
+                    <tr><td>8. PNBP penyampaian kontra memori</td><td class="text-end">Rp 10.000</td></tr>
+                    <tr><td>9. Biaya pemberitahuan inzage ke P & T</td><td class="text-end">Rp 40.000</td></tr>
+                    <tr><td>10. PNBP Inzage P & T</td><td class="text-end">Rp 20.000</td></tr>
+                    <tr><td>11. Biaya yang dikirim ke PTA Sby</td><td class="text-end">Rp 150.000</td></tr>
+                    <tr><td>12. Biaya penyampaian isi putusan sela ke P & T</td><td class="text-end">Rp 40.000</td></tr>
+                    <tr><td>13. PNBP penyampaian isi putusan sela ke P & T</td><td class="text-end">Rp 20.000</td></tr>
+                    <tr><td>14. Biaya pengiriman berkas</td><td class="text-end">Rp 50.000</td></tr>
+                    <tr><td>15. Biaya penyampaian isi putusan banding P & T</td><td class="text-end">Rp 40.000</td></tr>
+                    <tr><td>16. PNBP penyampaian isi putusan banding P & T</td><td class="text-end">Rp 20.000</td></tr>
+                `;
+            } else {
+                let isRadius2 = !allRadius1;
+                let b_pbt_banding = isRadius2 ? 250000 : 200000;
+                let b_memori = isRadius2 ? 250000 : 200000;
+                let b_kontra = isRadius2 ? 250000 : 200000;
+                let b_inzage = isRadius2 ? 500000 : 400000; 
+                let b_sela = isRadius2 ? 500000 : 400000; 
+                let b_putusan = isRadius2 ? 500000 : 400000; 
+                
+                grandTotal = 50000 + 10000 + b_pbt_banding + 10000 + b_memori + 10000 + b_kontra + 10000 + b_inzage + 20000 + 150000 + b_sela + 20000 + 50000 + b_putusan + 20000;
+
+                htmlDetail = `
+                    <tr><td colspan="2" class="fw-bold bg-light">VIII. PANJAR BIAYA BANDING MANUAL (${isRadius2 ? 'RADIUS II' : 'RADIUS I'})</td></tr>
+                    <tr><td>1. Biaya pendaftaran permohonan banding (HHK)</td><td class="text-end">Rp 50.000</td></tr>
+                    <tr><td>2. PNBP Pendaftaran banding</td><td class="text-end">Rp 10.000</td></tr>
+                    <tr><td>3. Biaya pemberitahuan banding ke Terbanding</td><td class="text-end fw-bold text-success">Rp ${b_pbt_banding.toLocaleString('id-ID')}</td></tr>
+                    <tr><td>4. PNBP pemberitahuan banding</td><td class="text-end">Rp 10.000</td></tr>
+                    <tr><td>5. Biaya penyampaian memori banding ke Terbanding</td><td class="text-end fw-bold text-success">Rp ${b_memori.toLocaleString('id-ID')}</td></tr>
+                    <tr><td>6. PNBP penyampaian memori banding</td><td class="text-end">Rp 10.000</td></tr>
+                    <tr><td>7. Biaya penyampaian kontra memori banding ke P</td><td class="text-end fw-bold text-success">Rp ${b_kontra.toLocaleString('id-ID')}</td></tr>
+                    <tr><td>8. PNBP penyampaian kontra memori</td><td class="text-end">Rp 10.000</td></tr>
+                    <tr><td>9. Biaya pemberitahuan inzage ke P & T</td><td class="text-end fw-bold text-success">Rp ${b_inzage.toLocaleString('id-ID')}</td></tr>
+                    <tr><td>10. PNBP Inzage P & T</td><td class="text-end">Rp 20.000</td></tr>
+                    <tr><td>11. Biaya yang dikirim ke PTA Sby</td><td class="text-end">Rp 150.000</td></tr>
+                    <tr><td>12. Biaya penyampaian isi putusan sela ke P & T</td><td class="text-end fw-bold text-success">Rp ${b_sela.toLocaleString('id-ID')}</td></tr>
+                    <tr><td>13. PNBP penyampaian isi putusan sela ke P & T</td><td class="text-end">Rp 20.000</td></tr>
+                    <tr><td>14. Biaya pengiriman berkas</td><td class="text-end">Rp 50.000</td></tr>
+                    <tr><td>15. Biaya penyampaian isi putusan banding P & T</td><td class="text-end fw-bold text-success">Rp ${b_putusan.toLocaleString('id-ID')}</td></tr>
+                    <tr><td>16. PNBP penyampaian isi putusan banding P & T</td><td class="text-end">Rp 20.000</td></tr>
+                `;
+            }
+            break;
+
+            case 'gugatan':
+            let hasPenggugat = false;
+            let hasTergugat = false;
+            let biayaPanggilanTergugat = 0;
+            let isGhoib = false;
+
+            for (let p of dataPihak) {
+                if (p.jenis === 'Penggugat') hasPenggugat = true;
+                if (p.jenis === 'Tergugat' || p.jenis === 'Turut Tergugat') {
+                    hasTergugat = true;
+                    if (p.lokasi === 'GHOIB') {
+                        isGhoib = true;
+                    } else {
+                        biayaPanggilanTergugat += p.radius; 
+                    }
+                }
+            }
+
+            if (!hasPenggugat || !hasTergugat) {
+                alert("Perhatian: Anda harus mengisi minimal 1 data Penggugat dan 1 data Tergugat!"); return;
+            }
+            
+            const pnbpRelaasGugatan = 20000 * jumlahData; 
+            const mediasi = 40000;
+            const pemberitahuanT = 20000;
+            // PERUBAHAN DI SINI: Dikali dengan jumlahData (jumlah pihak)
+            const pnbpPutusan = 10000 * jumlahData; 
+            const pnbpPencabutan = 10000;
+            const registerKuasa = 10000;
+
+            if (isGhoib) {
+                const panggilanMassmedia = 630000; // 2x @315rb
+                const pemberitahuanMassmedia = 270000;
+                
+                grandTotal = pendaftaran + atk + pnbpRelaasGugatan + mediasi + redaksi + materai + pemberitahuanT + pnbpPutusan + pnbpPencabutan + registerKuasa + panggilanMassmedia + pemberitahuanMassmedia;
+
+                htmlDetail = `
+                    <tr><td>1. Pendaftaran</td><td class="text-end">Rp 30.000</td></tr>
+                    <tr><td>2. Biaya Proses / ATK Perkara</td><td class="text-end">Rp 150.000</td></tr>
+                    <tr><td>3. Panggilan Penggugat/Pemohon</td><td class="text-end">Rp 0</td></tr>
+                    <tr><td>4. Biaya relaas Panggilan T melalui surat tercatat 3x @20rb</td><td class="text-end">Rp 0</td></tr>
+                    <tr><td>5. PNBP Relaas Panggilan Pertama P dan T (${jumlahData} Pihak)</td><td class="text-end">Rp ${pnbpRelaasGugatan.toLocaleString('id-ID')}</td></tr>
+                    <tr><td>6. Biaya relaas Panggilan T melalui Massmedia 2x @315rb</td><td class="text-end fw-bold text-success">Rp ${panggilanMassmedia.toLocaleString('id-ID')}</td></tr>
+                    <tr><td>7. Biaya panggilan mediasi</td><td class="text-end">Rp 40.000</td></tr>
+                    <tr><td>8. Biaya Sidang secara audiovisual</td><td class="text-end">Rp 0</td></tr>
+                    <tr><td>9. Redaksi</td><td class="text-end">Rp 10.000</td></tr>
+                    <tr><td>10. Materai</td><td class="text-end">Rp 10.000</td></tr>
+                    <tr><td>11. Pemberitahuan isi putusan T melalui surat tercatat</td><td class="text-end">Rp 20.000</td></tr>
+                    <tr><td>12. PNBP untuk Pemberitahuan Isi Putusan T (${jumlahData} Pihak)</td><td class="text-end">Rp ${pnbpPutusan.toLocaleString('id-ID')}</td></tr>
+                    <tr><td>13. PNBP Pencabutan perkara</td><td class="text-end">Rp 10.000</td></tr>
+                    <tr><td>14. Register Surat Kuasa</td><td class="text-end">Rp 10.000</td></tr>
+                    <tr><td>15. Pemberitahuan isi putusan T melalui Massmedia</td><td class="text-end fw-bold text-success">Rp ${pemberitahuanMassmedia.toLocaleString('id-ID')}</td></tr>
+                `;
+            } else {
+                grandTotal = pendaftaran + atk + biayaPanggilanTergugat + pnbpRelaasGugatan + mediasi + redaksi + materai + pemberitahuanT + pnbpPutusan + pnbpPencabutan + registerKuasa;
+
+                htmlDetail = `
+                    <tr><td>1. Pendaftaran</td><td class="text-end">Rp 30.000</td></tr>
+                    <tr><td>2. Biaya Proses / ATK Perkara</td><td class="text-end">Rp 150.000</td></tr>
+                    <tr><td>3. Panggilan Penggugat/Pemohon</td><td class="text-end">Rp 0</td></tr>
+                    <tr><td>4. Biaya relaas Panggilan T melalui surat tercatat</td><td class="text-end fw-bold text-success">Rp ${biayaPanggilanTergugat.toLocaleString('id-ID')}</td></tr>
+                    <tr><td>5. PNBP Relaas Panggilan Pertama P dan T (${jumlahData} Pihak)</td><td class="text-end">Rp ${pnbpRelaasGugatan.toLocaleString('id-ID')}</td></tr>
+                    <tr><td>6. Biaya panggilan mediasi</td><td class="text-end">Rp 40.000</td></tr>
+                    <tr><td>7. Biaya Sidang secara audiovisual</td><td class="text-end">Rp 0</td></tr>
+                    <tr><td>8. Redaksi</td><td class="text-end">Rp 10.000</td></tr>
+                    <tr><td>9. Materai</td><td class="text-end">Rp 10.000</td></tr>
+                    <tr><td>10. Pemberitahuan isi putusan T melalui surat tercatat</td><td class="text-end">Rp 20.000</td></tr>
+                    <tr><td>11. PNBP untuk Pemberitahuan Isi Putusan T (${jumlahData} Pihak)</td><td class="text-end">Rp ${pnbpPutusan.toLocaleString('id-ID')}</td></tr>
+                    <tr><td>12. PNBP Pencabutan perkara</td><td class="text-end">Rp 10.000</td></tr>
+                    <tr><td>13. Register Surat Kuasa</td><td class="text-end">Rp 10.000</td></tr>
+                `;
+            }
+            break;
+
+        case 'gugatan_sederhana':
+            let existP_GS = false;
+            let existT_GS = false;
+
+            for (let p of dataPihak) {
+                if (p.jenis === 'Penggugat') existP_GS = true;
+                if (p.jenis === 'Tergugat' || p.jenis === 'Turut Tergugat') existT_GS = true;
+            }
+            
+            if (!existP_GS || !existT_GS) {
+                alert("Perhatian: Anda harus mengisi minimal 1 data Penggugat dan 1 data Tergugat!"); return;
+            }
+
+            grandTotal = 380000;
+            const fixedCallsGS = 120000;
+
+            htmlDetail = `
+                <tr><td colspan="2" class="fw-bold bg-light">D. PERKARA GUGATAN SEDERHANA</td></tr>
+                <tr><td>1. Biaya pendaftaran (HHK C2)</td><td class="text-end">Rp 30.000</td></tr>
+                <tr><td>2. Biaya Proses Perkara (ATK Perkara)</td><td class="text-end">Rp 150.000</td></tr>
+                <tr><td>3. PNBP Panggilan pertama Penggugat, Tergugat dan PBT</td><td class="text-end">Rp 30.000</td></tr>
+                <tr><td>4. Biaya Panggilan Penggugat 2x dan Tergugat 6x</td><td class="text-end fw-bold text-success">Rp ${fixedCallsGS.toLocaleString('id-ID')}</td></tr>
+                <tr><td>5. Biaya redaksi (HHK E2)</td><td class="text-end">Rp 10.000</td></tr>
+                <tr><td>6. Biaya materai</td><td class="text-end">Rp 10.000</td></tr>
+                <tr><td>7. Pencabutan perkara</td><td class="text-end">Rp 10.000</td></tr>
+                <tr><td>8. Pemberitahuan isi putusan</td><td class="text-end">Rp 20.000</td></tr>
+            `;
+            break;
+
+        case 'verzet':
+            let existPelawan = false;
+            let existTerlawan = false;
+
+            for (let p of dataPihak) {
+                if (p.jenis === 'Pelawan') existPelawan = true; 
+                if (p.jenis === 'Terlawan' || p.jenis === 'Turut Terlawan') existTerlawan = true;
+            }
+
+            if (!existPelawan || !existTerlawan) {
+                alert("Perhatian: Harap masukkan data Pelawan dan Terlawan!"); return;
+            }
+
+            grandTotal = 310000;
+            const fixedCallsVerzet = 60000;
+
+            htmlDetail = `
+                <tr><td colspan="2" class="fw-bold bg-light">E. PERKARA VERZET</td></tr>
+                <tr><td>1. Biaya pendaftaran (HHK C2)</td><td class="text-end">Rp 30.000</td></tr>
+                <tr><td>2. Biaya Proses Perkara (ATK Perkara)</td><td class="text-end">Rp 150.000</td></tr>
+                <tr><td>3. PNBP Panggilan pertama Pelawan, Terlawan dan PBT</td><td class="text-end">Rp 30.000</td></tr>
+                <tr><td>4. Biaya Panggilan Terlawan 3 X</td><td class="text-end fw-bold text-success">Rp ${fixedCallsVerzet.toLocaleString('id-ID')}</td></tr>
+                <tr><td>5. Biaya materai</td><td class="text-end">Rp 10.000</td></tr>
+                <tr><td>6. Biaya redaksi (HHK E2)</td><td class="text-end">Rp 10.000</td></tr>
+                <tr><td>7. Pemberitahuan isi putusan</td><td class="text-end">Rp 20.000</td></tr>
+            `;
+            break;
+
+        case 'permohonan':
+            const pnbpRelaasPermohonan = 20000 * jumlahData; 
+            grandTotal = 30000 + 150000 + 10000 + 10000 + pnbpRelaasPermohonan + 10000 + 10000 + 20000;
+            htmlDetail = `
+                <tr><td>1. Pendaftaran</td><td class="text-end">Rp 30.000</td></tr>
+                <tr><td>2. Biaya Proses / ATK Perkara</td><td class="text-end">Rp 150.000</td></tr>
+                <tr><td>3. Redaksi</td><td class="text-end">Rp 10.000</td></tr>
+                <tr><td>4. Materai</td><td class="text-end">Rp 10.000</td></tr>
+                <tr><td>5. Panggilan Pemohon</td><td class="text-end">Rp 0</td></tr>
+                <tr><td>6. PNBP Relaas Panggilan Pertama Pemohon (${jumlahData} Pihak)</td><td class="text-end">Rp ${pnbpRelaasPermohonan.toLocaleString('id-ID')}</td></tr>
+                <tr><td>7. Panggilan Termohon</td><td class="text-end">Rp 0</td></tr>
+                <tr><td>8. Register Surat Kuasa</td><td class="text-end">Rp 10.000</td></tr>
+                <tr><td>9. PNBP Pencabutan perkara</td><td class="text-end">Rp 10.000</td></tr>
+                <tr><td>10. Biaya Sidang secara audiovisual</td><td class="text-end">Rp 0</td></tr>
+                <tr><td>11. Pemberitahuan Isi Putusan Via Surat Tercatat</td><td class="text-end">Rp 20.000</td></tr>
+            `;
+            break;
+
+        case 'konsinyasi':
+            let hasPemohonKons = false;
+            let hasTermohonKons = false;
+            let biayaPangPemohon = 0;
+            let biayaPangTermohon = 0;
+
+            for (let p of dataPihak) {
+                if (p.jenis === 'Pemohon') {
+                    hasPemohonKons = true;
+                    biayaPangPemohon += p.isRadius1 ? 200000 : 250000;
+                }
+                if (p.jenis === 'Termohon') {
+                    hasTermohonKons = true;
+                    biayaPangTermohon += p.isRadius1 ? 400000 : 500000;
+                }
+            }
+
+            if (!hasPemohonKons || !hasTermohonKons) {
+                alert("Perhatian: Anda harus mengisi minimal 1 data Pemohon dan 1 data Termohon!"); return;
+            }
+
+            const pnbpDaftarKons = 30000;
+            const pnbpTetapKons = 10000;
+            const materai3Kons = 30000;
+            const upahJurusitaKons = 160000;
+            const upahSaksiKons = 320000;
+            const pnbpBAKons = 10000;
+            const baPenawaranKons = 10000;
+
+            grandTotal = pnbpDaftarKons + pnbpTetapKons + materai3Kons + upahJurusitaKons + upahSaksiKons + biayaPangPemohon + biayaPangTermohon + pnbpBAKons + baPenawaranKons;
+
+            htmlDetail = `
+                <tr><td>1. PNBP Pendaftaran</td><td class="text-end">Rp ${pnbpDaftarKons.toLocaleString('id-ID')}</td></tr>
+                <tr><td>2. PNBP Penetapan</td><td class="text-end">Rp ${pnbpTetapKons.toLocaleString('id-ID')}</td></tr>
+                <tr><td>3. Materei 3 lembar</td><td class="text-end">Rp ${materai3Kons.toLocaleString('id-ID')}</td></tr>
+                <tr><td>4. Upah Jurusita</td><td class="text-end">Rp ${upahJurusitaKons.toLocaleString('id-ID')}</td></tr>
+                <tr><td>5. Upah Saksi 2 orang</td><td class="text-end">Rp ${upahSaksiKons.toLocaleString('id-ID')}</td></tr>
+                <tr><td>6. Biaya Panggilan/pemberitahuan kepada Pemohon (1x)</td><td class="text-end fw-bold text-success">Rp ${biayaPangPemohon.toLocaleString('id-ID')}</td></tr>
+                <tr><td>7. Biaya Panggilan/pemberitahuan kepada Termohon (2x)</td><td class="text-end fw-bold text-success">Rp ${biayaPangTermohon.toLocaleString('id-ID')}</td></tr>
+                <tr><td>8. PNBP Berita Acara Konsinyasi</td><td class="text-end">Rp ${pnbpBAKons.toLocaleString('id-ID')}</td></tr>
+                <tr><td>9. Berita Acara Penawaran</td><td class="text-end">Rp ${baPenawaranKons.toLocaleString('id-ID')}</td></tr>
+            `;
+            break;
+
+        case 'ps':
+            let biayaPembPT = 0;
+            let pnbpPembPT = 0;
+            let biayaPembKel = 0;
+            let pnbpPembKel = 0;
+            let biayaPetugas = 0;
+            let biayaTransport = 0;
+
+            for (let p of dataPihak) {
+                if (p.isRadius1) {
+                    biayaPembPT += 400000;
+                    biayaPembKel += 200000;
+                } else {
+                    biayaPembPT += 500000;
+                    biayaPembKel += 250000;
+                }
+                pnbpPembPT += 20000;
+                pnbpPembKel += 10000;
+                biayaPetugas += 320000;
+                biayaTransport += 1200000;
+            }
+
+            grandTotal = biayaPembPT + pnbpPembPT + biayaPembKel + pnbpPembKel + biayaPetugas + biayaTransport;
+
+            htmlDetail = `
+                <tr><td>1. Biaya pemberitahuan pelaksanaan PS ke P & T</td><td class="text-end">Rp ${biayaPembPT.toLocaleString('id-ID')}</td></tr>
+                <tr><td>2. PNBP pemb ke P & T</td><td class="text-end">Rp ${pnbpPembPT.toLocaleString('id-ID')}</td></tr>
+                <tr><td>3. Biaya pemberitahuan pelaksanaan PS ke kelurahan/Desa</td><td class="text-end">Rp ${biayaPembKel.toLocaleString('id-ID')}</td></tr>
+                <tr><td>4. PNBP pemberitahuan ke kelurahan/Desa</td><td class="text-end">Rp ${pnbpPembKel.toLocaleString('id-ID')}</td></tr>
+                <tr><td>5. Biaya petugas kelurahan/Desa *)</td><td class="text-end">Rp ${biayaPetugas.toLocaleString('id-ID')}</td></tr>
+                <tr><td>6. Biaya Transportasi (Sewa Kendaraan, sopir dan BBM) *)</td><td class="text-end">Rp ${biayaTransport.toLocaleString('id-ID')}</td></tr>
+            `;
+            break;
+
+        case 'eksekusi':
+            const chkAanmaning = document.getElementById('chkAanmaning').checked;
+            const chkSita = document.getElementById('chkSita').checked;
+            const chkRiil = document.getElementById('chkRiil').checked;
+            const chkLelang = document.getElementById('chkLelang').checked;
+
+            if (!chkAanmaning && !chkSita && !chkRiil && !chkLelang) {
+                alert("Perhatian: Harap centang minimal satu tahapan pelaksanaan Eksekusi yang ingin dihitung!");
+                return;
+            }
+
+            let useRadius1 = true;
+            for (let p of dataPihak) {
+                if (p.isRadius1 === false) {
+                    useRadius1 = false;
+                    break;
+                }
+            }
+
+            if (chkAanmaning) {
+                const bAanmaning = useRadius1 ? 450000 : 550000;
+                const pAanmaningPT = useRadius1 ? 400000 : 500000;
+                grandTotal += bAanmaning;
+                htmlDetail += `
+                    <tr><td colspan="2" class="fw-bold bg-light">I. AANMANING</td></tr>
+                    <tr><td>- Biaya pendaftaran ( HHK E6 )</td><td class="text-end">Rp 10.000</td></tr>
+                    <tr><td>- Biaya Materai Penetapan Aanmaning</td><td class="text-end">Rp 10.000</td></tr>
+                    <tr><td>- PNBP Penetapan Aanmaning</td><td class="text-end">Rp 10.000</td></tr>
+                    <tr><td>- Panggilan aanmaning ke P & T</td><td class="text-end">Rp ${pAanmaningPT.toLocaleString('id-ID')}</td></tr>
+                    <tr><td>- PNBP panggilan aanmaning ke T</td><td class="text-end">Rp 10.000</td></tr>
+                    <tr><td>- Berita Acara Teguran (PNBP)</td><td class="text-end">Rp 10.000</td></tr>
+                    <tr><td class="fw-bold">Sub Jumlah Aanmaning</td><td class="text-end fw-bold text-success">Rp ${bAanmaning.toLocaleString('id-ID')}</td></tr>
+                `;
+            }
+
+            if (chkSita) {
+                const bSita = useRadius1 ? 3620000 : 3920000;
+                const pSita1 = useRadius1 ? 400000 : 500000;
+                const pSita2 = useRadius1 ? 200000 : 250000;
+                grandTotal += bSita;
+                htmlDetail += `
+                    <tr><td colspan="2" class="fw-bold bg-light">II. SITA EKSEKUSI / PENGANGKATAN SITA EKSEKUSI</td></tr>
+                    <tr><td>- Biaya Pendaftaran (PNBP)</td><td class="text-end">Rp 25.000</td></tr>
+                    <tr><td>- Penetapan Sita Eksekusi (PNBP)</td><td class="text-end">Rp 10.000</td></tr>
+                    <tr><td>- Biaya Pemberitahuan Pelaksanaan Sita Eksekusi ( P dan T)</td><td class="text-end">Rp ${pSita1.toLocaleString('id-ID')}</td></tr>
+                    <tr><td>- Biaya Pemberitahuan Pelaksanaan Sita Eksekusi ke Lurah/Desa</td><td class="text-end">Rp ${pSita2.toLocaleString('id-ID')}</td></tr>
+                    <tr><td>- Upah Jurusita / Jurusita Pengganti *)</td><td class="text-end">Rp 160.000</td></tr>
+                    <tr><td>- Upah 2 (dua) orang Saksi *)</td><td class="text-end">Rp 320.000</td></tr>
+                    <tr><td>- Upah Petugas Kelurahan/Desa (2 orang) *)</td><td class="text-end">Rp 320.000</td></tr>
+                    <tr><td>- Berita Acara Sita Eksekusi (PNBP)</td><td class="text-end">Rp 10.000</td></tr>
+                    <tr><td>- Penyampaian BA. Sita Eksekusi kepada P dan T Eksekusi</td><td class="text-end">Rp ${pSita1.toLocaleString('id-ID')}</td></tr>
+                    <tr><td>- PNBP Penyerahan Berita Acara Sita Eksekusi P dan T</td><td class="text-end">Rp 20.000</td></tr>
+                    <tr><td>- Penyampaian BA.Sita Eksekusi kpd Lurah/Kades Setempat</td><td class="text-end">Rp ${pSita2.toLocaleString('id-ID')}</td></tr>
+                    <tr><td>- Penyerahan Berita Acara Sita Eksekusi kepada Lurah / Kades (PNBP)</td><td class="text-end">Rp 10.000</td></tr>
+                    <tr><td>- Penyampaian BA. Sita Eksekusi kepada BPN</td><td class="text-end">Rp 150.000</td></tr>
+                    <tr><td>- Penyerahan Berita Acara Sita Eksekusi kepada BPN (PNBP)</td><td class="text-end">Rp 10.000</td></tr>
+                    <tr><td>- Pencatatan Sita Eksekusi ke BPN/Obyek</td><td class="text-end">Rp 150.000</td></tr>
+                    <tr><td>- Biaya Pencatatan Sita Eksekusi (PNBP)</td><td class="text-end">Rp 25.000</td></tr>
+                    <tr><td>- Biaya Transportasi (Sewa Kendaraan, sopir dan BBM) *)</td><td class="text-end">Rp 1.200.000</td></tr>
+                    <tr><td>- Biaya Ukur</td><td class="text-end text-muted small">Sesuai Tarif BPN</td></tr>
+                    <tr><td>- Biaya Pengamanan</td><td class="text-end text-muted small">Sesuai Kebutuhan</td></tr>
+                    <tr><td class="fw-bold">Sub Jumlah Sita Eksekusi</td><td class="text-end fw-bold text-success">Rp ${bSita.toLocaleString('id-ID')}</td></tr>
+                `;
+            }
+
+            if (chkRiil) {
+                const bRiil = useRadius1 ? 8450000 : 9000000;
+                const pRiil1 = useRadius1 ? 400000 : 500000;
+                const pRiil2 = useRadius1 ? 200000 : 250000; 
+                grandTotal += bRiil;
+                htmlDetail += `
+                    <tr><td colspan="2" class="fw-bold bg-light">III. EKSEKUSI RIIL / PENGOSONGAN</td></tr>
+                    <tr><td>- Biaya Pendaftaran (PNBP)</td><td class="text-end">Rp 25.000</td></tr>
+                    <tr><td>- Materai</td><td class="text-end">Rp 10.000</td></tr>
+                    <tr><td>- Biaya Pemberitahuan Pelaksanaan Eksekusi ( P dan T)</td><td class="text-end">Rp ${pRiil1.toLocaleString('id-ID')}</td></tr>
+                    <tr><td>- Biaya Pemberitahuan Pelaksanaan Eksekusi ke Lurah/Desa</td><td class="text-end">Rp ${pRiil2.toLocaleString('id-ID')}</td></tr>
+                    <tr><td>- Biaya Pemberitahuan Pelaksanaan Eksekusi ke Camat</td><td class="text-end">Rp ${pRiil2.toLocaleString('id-ID')}</td></tr>
+                    <tr><td>- Biaya Pemberitahuan Pelaksanaan Eksekusi ke Kapolsek</td><td class="text-end">Rp ${pRiil2.toLocaleString('id-ID')}</td></tr>
+                    <tr><td>- Biaya Pemberitahuan Pelaksanaan Eksekusi ke Koramil</td><td class="text-end">Rp ${pRiil2.toLocaleString('id-ID')}</td></tr>
+                    <tr><td>- Biaya Pemberitahuan Pelaksanaan Eksekusi ke Kapolres</td><td class="text-end">Rp ${pRiil2.toLocaleString('id-ID')}</td></tr>
+                    <tr><td>- Biaya Rapat Koordinasi keamanan dan pelaksanaan Eksekusi</td><td class="text-end">Rp 1.500.000</td></tr>
+                    <tr><td>- Biaya Transportasi (Sewa Kendaraan, sopir dan BBM) *)</td><td class="text-end">Rp 1.200.000</td></tr>
+                    <tr><td>- Upah Jurusita / Jurusita Pengganti *)</td><td class="text-end">Rp 160.000</td></tr>
+                    <tr><td>- Upah 2 (dua) orang Saksi *)</td><td class="text-end">Rp 320.000</td></tr>
+                    <tr><td>- Upah Petugas Kelurahan/Desa (2 orang) *)</td><td class="text-end">Rp 320.000</td></tr>
+                    <tr><td>- Biaya Konstatering</td><td class="text-end">Rp 2.500.000</td></tr>
+                    <tr><td>- Penyampaian BA. Eksekusi kpd Pemohon dan Termohon Eksekusi</td><td class="text-end">Rp ${pRiil1.toLocaleString('id-ID')}</td></tr>
+                    <tr><td>- PNBP Berita Acara Eksekusi kepada P dan T Eksekusi</td><td class="text-end">Rp 20.000</td></tr>
+                    <tr><td>- Penyampaian BA. Eksekusi kepada Lurah/Kades Setempat</td><td class="text-end">Rp ${pRiil2.toLocaleString('id-ID')}</td></tr>
+                    <tr><td>- Berita Acara Eksekusi kepada Lurah / Kades (PNBP)</td><td class="text-end">Rp 10.000</td></tr>
+                    <tr><td>- Penyampaian BA. Eksekusi kepada BPN</td><td class="text-end">Rp ${pRiil2.toLocaleString('id-ID')}</td></tr>
+                    <tr><td>- Berita Acara Eksekusi kepada BPN (PNBP)</td><td class="text-end">Rp 10.000</td></tr>
+                    <tr><td>- Pencatatan Eksekusi ke BPN/Obyek</td><td class="text-end">Rp 150.000</td></tr>
+                    <tr><td>- Biaya Pencatatan Eksekusi (PNBP)</td><td class="text-end">Rp 25.000</td></tr>
+                    <tr><td>- Biaya Ukur</td><td class="text-end text-muted small">Sesuai Tarif BPN</td></tr>
+                    <tr><td>- Biaya Pengamanan</td><td class="text-end text-muted small">Sesuai Kebutuhan</td></tr>
+                    <tr><td class="fw-bold">Sub Jumlah Eksekusi Riil</td><td class="text-end fw-bold text-success">Rp ${bRiil.toLocaleString('id-ID')}</td></tr>
+                `;
+            }
+
+            if (chkLelang) {
+                const bLelang = 2760000;
+                grandTotal += bLelang;
+                htmlDetail += `
+                    <tr><td colspan="2" class="fw-bold bg-light">IV. EKSEKUSI LELANG/ PEMBAYARAN SEJUMLAH UANG</td></tr>
+                    <tr><td>- Jasa Penilaian Properti (apprasel) Per Obyek</td><td class="text-end text-muted small">Sesuai appresel</td></tr>
+                    <tr><td>- Biaya pendaftaran</td><td class="text-end">Rp 250.000</td></tr>
+                    <tr><td>- PNBP pendaftaran</td><td class="text-end">Rp 10.000</td></tr>
+                    <tr><td>- Biaya materai penetapan lelang</td><td class="text-end">Rp 10.000</td></tr>
+                    <tr><td>- PNBP penetapan lelang</td><td class="text-end">Rp 10.000</td></tr>
+                    <tr><td>- Biaya Materai Penetapan Harga limit</td><td class="text-end">Rp 10.000</td></tr>
+                    <tr><td>- Biaya Pengurusan SKT ke Kelurahan dan BPN</td><td class="text-end text-muted small">Sesuai Tarif BPN</td></tr>
+                    <tr><td>- Pengumuman lelang 1 & 2</td><td class="text-end text-muted small">Sesuai Tarif media</td></tr>
+                    <tr><td>- PNBP Pengumuman 1 & 2</td><td class="text-end">Rp 20.000</td></tr>
+                    <tr><td>- Upah Jurusita / Jurusita Pengganti *)</td><td class="text-end">Rp 160.000</td></tr>
+                    <tr><td>- Upah 2 (dua) orang Saksi *)</td><td class="text-end">Rp 320.000</td></tr>
+                    <tr><td>- Biaya Transportasi (Sewa Kendaraan, sopir dan BBM) *)</td><td class="text-end">Rp 1.200.000</td></tr>
+                    <tr><td>- PNBP Pembagian hasil lelang</td><td class="text-end">Rp 10.000</td></tr>
+                    <tr><td>- Biaya Penyampaian berita acara eksekusi kepada BPN</td><td class="text-end">Rp 250.000</td></tr>
+                    <tr><td>- Biaya Penyampaian BA Eksekusi Lelang kepada P, T dan Lurah</td><td class="text-end">Rp 510.000</td></tr>
+                    <tr><td class="fw-bold">Sub Jumlah Eksekusi Lelang</td><td class="text-end fw-bold text-success">Rp ${bLelang.toLocaleString('id-ID')}</td></tr>
+                `;
+            }
+            break;
+    }
+    
+    document.getElementById("detailBiaya").innerHTML = htmlDetail;
+    document.getElementById("totalAkhir").innerText = `Rp ${grandTotal.toLocaleString('id-ID')}`;
+    document.getElementById("resultArea").style.display = "block";
+const btnCetak = document.getElementById('btnCetak');
+if (btnCetak) {btnCetak.style.display = 'block';}
+}
+
+window.onload = function() { resetPihak(); };
+</script>
+
+</body>
+</html>
