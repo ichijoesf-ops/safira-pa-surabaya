@@ -7,9 +7,9 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         :root {
-            --pa-green: #0f5e43;        /* Hijau Botol (Warna Utama) */
-            --pa-gold: #cfa754;         /* Emas Lembut */
-            --pa-soft-green-bg: #f1f8e9; /* Hijau Super Soft (Background Utama) */
+            --pa-green: #0f5e43;        
+            --pa-gold: #cfa754;         
+            --pa-soft-green-bg: #f1f8e9; 
             --pa-white-overlay: rgba(255, 255, 255, 0.95);
         }
         
@@ -21,7 +21,6 @@
             background-size: 25px 25px;
         }
 
-        /* HEADER DENGAN MOTIF ISLAMI */
         .pa-header { 
             background-color: var(--pa-green);
             background-image:  
@@ -134,15 +133,6 @@
             border-top: 4px solid var(--pa-gold);
             border-radius: 15px;
         }
-        
-        .btn-cetak {
-            background: var(--pa-gold);
-            color: white;
-            border: none;
-            border-radius: 50px;
-            padding: 10px 25px;
-            font-weight: bold;
-        }
 
         .opsi-container {
             border: 2px solid var(--pa-green);
@@ -154,20 +144,26 @@
         }
 
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        
-    
     </style>
 </head>
 <body>
 
-<div class="pa-header text-center">
+<div class="pa-header">
     <div class="container">
-        <p class="mb-1" style="font-family: 'Times New Roman', serif; font-style: italic; opacity: 0.8;">
-            Bismillahirrahmanirrahim
+        <p class="text-center mb-3" style="font-family: 'Traditional Arabic', 'Times New Roman', serif; font-size: 2rem; opacity: 0.9;">
+            ﷽
         </p>
-        <h3 class="fw-bold mb-1">ZAHRA (ZONA AKURAT HITUNG BIAYA BERPERKARA)</h3>
-        <p class="mb-0 medium text-white-50; bold">Pengadilan Agama Surabaya Kelas IA</p>
         
+        <div class="row align-items-center justify-content-center">
+            <div class="col-auto">
+                <img src="logo-pa.png" alt="Logo PA" style="height: 85px; width: auto; filter: drop-shadow(0px 2px 4px rgba(0,0,0,0.3));">
+            </div>
+            
+            <div class="col-auto text-start border-start border-end border-white border-2 px-4 mx-2">
+                <h3 class="fw-bold mb-0" style="letter-spacing: 1px;">SAHARA</h3>
+                <p class="mb-0 fw-bold small" style="opacity: 0.9;">SISTEM INFORMASI HITUNG BIAYA BERPERKARA</p>
+                <p class="mb-0 small text-white-50">Pengadilan Agama Surabaya Kelas IA</p>
+            </div>
         </div>
     </div>
 </div>
@@ -183,13 +179,97 @@
                         <option value="gugatan">Gugatan (Cerai Gugat, Cerai Talak, Gugatan Waris, dll)</option>
                         <option value="permohonan">Permohonan (Dispensasi Nikah, Isbat Nikah, Penetapan Ahli Waris, Perwalian, dll)</option>
                         <option value="verzet">Verzet (Perlawanan)</option>
-                        <option value="banding">Banding </option>
-                        <option value="kasasi">Kasasi </option>
+                        <option value="banding">Banding</option>
+                        <option value="kasasi">Kasasi</option>
                         <option value="gugatan_sederhana">Gugatan Sederhana</option>
                         <option value="ps">Pemeriksaan Setempat</option>
                         <option value="konsinyasi">Permohonan Konsinyasi</option>
                         <option value="eksekusi">Eksekusi</option>
                     </select>
+                </div>
+
+                <div id="opsiGugatan" class="mb-4 d-none p-3 rounded shadow-sm animate__animated animate__fadeIn opsi-container">
+                    <label class="form-label fw-bold text-success mb-2">2. Pilih Metode Gugatan:</label>
+                    <div class="d-flex flex-column flex-md-row gap-3">
+                        <div class="form-check p-3 bg-white rounded border w-100 shadow-sm">
+                            <input class="form-check-input" type="radio" name="metodeGugatan" id="gugatanEcourt" value="ecourt" checked onchange="toggleOpsiGugatanManual(); resetPihak();">
+                            <label class="form-check-label fw-bold" for="gugatanEcourt">
+                                ⚖️ E-Court / Elektronik <br>
+                            </label>
+                        </div>
+                        <div class="form-check p-3 bg-white rounded border w-100 shadow-sm">
+                            <input class="form-check-input" type="radio" name="metodeGugatan" id="gugatanManual" value="manual" onchange="toggleOpsiGugatanManual(); resetPihak();">
+                            <label class="form-check-label fw-bold" for="gugatanManual">
+                                📝 Manual <br>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div id="subOpsiGugatanManual" class="d-none mt-3 p-3 border rounded bg-light">
+                        <label class="form-label fw-bold text-danger mb-2">Pilih Jenis Gugatan Manual:</label>
+                        <div class="form-check mb-2">
+                            <input class="form-check-input" type="radio" name="jenisGugatanManual" id="ceraiGugat" value="cg" checked onchange="resetPihak(true);">
+                            <label class="form-check-label fw-bold" for="ceraiGugat">A. Cerai Gugat / Gugatan Lainnya</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="jenisGugatanManual" id="ceraiTalak" value="ct" onchange="resetPihak(true);">
+                            <label class="form-check-label fw-bold" for="ceraiTalak">B. Cerai Talak</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="opsiPermohonan" class="mb-4 d-none p-3 rounded shadow-sm animate__animated animate__fadeIn opsi-container">
+                    <label class="form-label fw-bold text-success mb-2">2. Pilih Metode Permohonan:</label>
+                    <div class="d-flex flex-column flex-md-row gap-3">
+                        <div class="form-check p-3 bg-white rounded border w-100 shadow-sm">
+                            <input class="form-check-input" type="radio" name="metodePermohonan" id="permohonanEcourt" value="ecourt" checked onchange="resetPihak()">
+                            <label class="form-check-label fw-bold" for="permohonanEcourt">
+                                ⚖️ E-Court / Elektronik <br>
+                            </label>
+                        </div>
+                        <div class="form-check p-3 bg-white rounded border w-100 shadow-sm">
+                            <input class="form-check-input" type="radio" name="metodePermohonan" id="permohonanManual" value="manual" onchange="resetPihak()">
+                            <label class="form-check-label fw-bold" for="permohonanManual">
+                                📝 Manual <br>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="opsiGugatanSederhana" class="mb-4 d-none p-3 rounded shadow-sm animate__animated animate__fadeIn opsi-container">
+                    <label class="form-label fw-bold text-success mb-2">2. Pilih Metode Gugatan Sederhana:</label>
+                    <div class="d-flex flex-column flex-md-row gap-3">
+                        <div class="form-check p-3 bg-white rounded border w-100 shadow-sm">
+                            <input class="form-check-input" type="radio" name="metodeGS" id="gsEcourt" value="ecourt" checked onchange="resetPihak()">
+                            <label class="form-check-label fw-bold" for="gsEcourt">
+                                ⚖️ E-Court / Elektronik <br>
+                            </label>
+                        </div>
+                        <div class="form-check p-3 bg-white rounded border w-100 shadow-sm">
+                            <input class="form-check-input" type="radio" name="metodeGS" id="gsManual" value="manual" onchange="resetPihak()">
+                            <label class="form-check-label fw-bold" for="gsManual">
+                                📝 Manual <br>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="opsiVerzet" class="mb-4 d-none p-3 rounded shadow-sm animate__animated animate__fadeIn opsi-container">
+                    <label class="form-label fw-bold text-success mb-2">2. Pilih Metode Verzet:</label>
+                    <div class="d-flex flex-column flex-md-row gap-3">
+                        <div class="form-check p-3 bg-white rounded border w-100 shadow-sm">
+                            <input class="form-check-input" type="radio" name="metodeVerzet" id="verzetEcourt" value="ecourt" checked onchange="resetPihak()">
+                            <label class="form-check-label fw-bold" for="verzetEcourt">
+                                ⚖️ E-Court / Elektronik <br>
+                            </label>
+                        </div>
+                        <div class="form-check p-3 bg-white rounded border w-100 shadow-sm">
+                            <input class="form-check-input" type="radio" name="metodeVerzet" id="verzetManual" value="manual" onchange="resetPihak()">
+                            <label class="form-check-label fw-bold" for="verzetManual">
+                                📝 Manual <br>
+                            </label>
+                        </div>
+                    </div>
                 </div>
 
                 <div id="opsiBanding" class="mb-4 d-none p-3 rounded shadow-sm animate__animated animate__fadeIn opsi-container">
@@ -198,7 +278,7 @@
                         <div class="form-check p-3 bg-white rounded border w-100 shadow-sm">
                             <input class="form-check-input" type="radio" name="metodeBanding" id="bandingEcourt" value="ecourt" checked onchange="resetPihak()">
                             <label class="form-check-label fw-bold" for="bandingEcourt">
-                                📱 E-Court / Elektronik <br>
+                                ⚖️ E-Court / Elektronik <br>
                             </label>
                         </div>
                         <div class="form-check p-3 bg-white rounded border w-100 shadow-sm">
@@ -216,7 +296,7 @@
                         <div class="form-check p-3 bg-white rounded border w-100 shadow-sm">
                             <input class="form-check-input" type="radio" name="metodeKasasi" id="kasasiEcourt" value="ecourt" checked onchange="resetPihak()">
                             <label class="form-check-label fw-bold" for="kasasiEcourt">
-                                📱 E-Court / Elektronik <br>
+                                ⚖️ E-Court / Elektronik <br>
                             </label>
                         </div>
                         <div class="form-check p-3 bg-white rounded border w-100 shadow-sm">
@@ -250,15 +330,24 @@
 
                 <div class="mb-3 d-flex justify-content-between align-items-center mt-4">
                     <label class="form-label fw-bold mb-0" id="labelRincian">2. Rincian Pihak & Alamat Domisili</label>
-                    <button class="btn btn-tambah btn-sm shadow-sm" id="btnTambahPihak" onclick="tambahPihak()">+ TAMBAH DATA</button>
+                    <button class="btn btn-tambah btn-sm shadow-sm" id="btnTambahPihak" onclick="tambahPihak()">+ TAMBAH PIHAK</button>
                 </div>
 
                 <div id="areaDomisili"></div>
 
                 <button class="btn btn-hitung mt-4 shadow" onclick="hitungEstimasi()">HITUNG TOTAL ESTIMASI</button>
 
-                <div id="resultArea" class="result-table mt-4">
-                    <div class="alert alert-success fw-bold text-center">HASIL ESTIMASI PANJAR BIAYA</div>
+                <div id="resultArea" class="result-table mt-4" style="display: none;">
+                    <div class="alert alert-success fw-bold text-center mb-2">HASIL ESTIMASI PANJAR BIAYA</div>
+                    
+                    <div id="peringatanLuarJatim" class="alert alert-warning fw-bold text-center mb-3" style="display: none; font-size: 0.9rem; border-left: 5px solid #ffc107;">
+                        ⚠️ <span class="text-dark">Informasi: Rincian tarif pasti saat ini hanya tersedia untuk wilayah <b>Jawa Timur</b>. Estimasi biaya di luar Jawa Timur bersifat perkiraan awal. Silakan hubungi layanan informasi PA Surabaya untuk konfirmasi lebih rinci.</span>
+                    </div>
+
+                    <div id="peringatanManualLuarSurabaya" class="alert alert-info fw-bold text-center mb-3" style="display: none; font-size: 0.9rem; border-left: 5px solid #0dcaf0;">
+                        ℹ️ <span class="text-dark">Informasi: Estimasi biaya perkara manual ini mengacu pada tarif <b>Kota Surabaya</b>. Untuk domisili di luar Surabaya, biaya dapat berbeda. Harap konfirmasi ke Pengadilan Agama Surabaya.</span>
+                    </div>
+
                     <table class="table table-bordered bg-white">
                         <thead class="table-light text-center">
                             <tr><th>URAIAN</th><th class="text-end">Jumlah</th></tr>
@@ -277,7 +366,7 @@
                         <li>Apabila ada pihak berada di luar wilayah hukum Pengadilan Agama Surabaya, biaya panggilan / pemberitahuan disesuaikan dengan tarif pada pengadilan agama yang dituju.</li>
                         <li>Apabila masih ada sisa panjar akan dikembalikan, dan apabila kurang agar ditambah.</li>
                         <li>Dalam waktu 180 hari sisa panjar tidak diambil, akan disetor ke kas negara.</li>
-                        <li>Panjar Sita dan PS tersebut untuk satu obyek tanah & bangunan dalam satu desa. Jika satu desa lebih dari 2 obyek, panjar menyesuaikan.</li>
+                        <li>Panjar Sita dan PS berlaku untuk satu obyek tanah & bangunan dalam satu desa. Jika dalam satu desa lebih dari 2 obyek, panjar menyesuaikan.</li>
                         <li>Upah Jurusita, saksi dan Transportasi mengikuti SBM Kementerian Keuangan.</li>
                     </ol>
                 </div>
@@ -392,20 +481,41 @@ const dataRadiusKel = {
 
 const BIAYA_LUAR_NEGERI = 5128000;
 let jumlahPihak = 0;
+let uniqueIdCounter = 0;
 
-function resetPihak() {
-    document.getElementById('areaDomisili').innerHTML = '';
-    jumlahPihak = 0;
-    document.getElementById('resultArea').style.display = 'none';
-const btnCetak = document.getElementById('btnCetak');
-if (btnCetak) {
-    btnCetak.style.display = 'none';}
+function toggleOpsiGugatanManual() {
+    const isManual = document.getElementById('gugatanManual').checked;
+    const subOpsi = document.getElementById('subOpsiGugatanManual');
+    if (isManual) {
+        subOpsi.classList.remove('d-none');
+    } else {
+        subOpsi.classList.add('d-none');
+    }
+}
+
+function resetPihak(skipClear = false) {
+    if (!skipClear) {
+        document.getElementById('areaDomisili').innerHTML = '';
+        jumlahPihak = 0;
+        uniqueIdCounter = 0;
+        document.getElementById('resultArea').style.display = 'none';
+        const btnCetak = document.getElementById('btnCetak');
+        if (btnCetak) btnCetak.style.display = 'none';
+    }
     
     const jenis = document.getElementById('jenisPerkara').value;
+    const opsiGugatan = document.getElementById('opsiGugatan');
+    const opsiPermohonan = document.getElementById('opsiPermohonan');
+    const opsiGS = document.getElementById('opsiGugatanSederhana');
+    const opsiVerzet = document.getElementById('opsiVerzet');
     const opsiEks = document.getElementById('opsiEksekusi');
     const opsiBanding = document.getElementById('opsiBanding');
     const opsiKasasi = document.getElementById('opsiKasasi');
     
+    if (opsiGugatan) opsiGugatan.classList.add('d-none');
+    if (opsiPermohonan) opsiPermohonan.classList.add('d-none');
+    if (opsiGS) opsiGS.classList.add('d-none');
+    if (opsiVerzet) opsiVerzet.classList.add('d-none');
     if (opsiEks) opsiEks.classList.add('d-none');
     if (opsiBanding) opsiBanding.classList.add('d-none');
     if (opsiKasasi) opsiKasasi.classList.add('d-none');
@@ -416,33 +526,67 @@ if (btnCetak) {
         return; 
     }
 
-    // Penyesuaian UI Teks Berdasarkan Perkara
     if (jenis === 'ps' || jenis === 'eksekusi') {
         document.getElementById('labelRincian').innerText = "Rincian Lokasi Obyek / Alamat Domisili";
     } else {
         document.getElementById('labelRincian').innerText = "Rincian Pihak & Alamat Domisili";
     }
     
+    if (jenis === 'gugatan') {
+        opsiGugatan.classList.remove('d-none');
+        toggleOpsiGugatanManual();
+    }
+    if (jenis === 'permohonan') opsiPermohonan.classList.remove('d-none');
+    if (jenis === 'gugatan_sederhana') opsiGS.classList.remove('d-none');
+    if (jenis === 'verzet') opsiVerzet.classList.remove('d-none');
     if (jenis === 'eksekusi') {
         opsiEks.classList.remove('d-none');
         document.querySelectorAll('.chk-eksekusi').forEach(el => el.checked = false);
     }
-    
-    // Tampilkan opsi Banding
-    if (jenis === 'banding') {
-        opsiBanding.classList.remove('d-none');
-    }
-
-    // Tampilkan opsi Kasasi
-    if (jenis === 'kasasi') {
-        opsiKasasi.classList.remove('d-none');
-    }
+    if (jenis === 'banding') opsiBanding.classList.remove('d-none');
+    if (jenis === 'kasasi') opsiKasasi.classList.remove('d-none');
 
     if (['ps', 'konsinyasi', 'eksekusi', 'banding', 'kasasi'].includes(jenis)) {
         document.getElementById('catatanKaki').classList.remove('d-none');
     }
     
-    tambahPihak();
+    if (!skipClear) {
+        tambahPihak();
+    } else {
+        const selects = document.querySelectorAll('.sel-jenis-pihak');
+        let isCeraiTalak = document.getElementById('ceraiTalak') ? document.getElementById('ceraiTalak').checked : false;
+        let isManual = document.getElementById('gugatanManual') ? document.getElementById('gugatanManual').checked : false;
+        
+        selects.forEach(sel => {
+            let currentVal = sel.value;
+            if (jenis === 'gugatan' && isManual && isCeraiTalak) {
+                sel.innerHTML = `<option value="">-- Pilih --</option><option value="Penggugat">Pemohon</option><option value="Tergugat">Termohon</option><option value="Turut Tergugat">Turut Termohon</option>`;
+            } else if (jenis === 'gugatan') {
+                sel.innerHTML = `<option value="">-- Pilih --</option><option value="Penggugat">Penggugat</option><option value="Tergugat">Tergugat</option><option value="Turut Tergugat">Turut Tergugat</option>`;
+            }
+            sel.value = currentVal; 
+        });
+    }
+}
+
+function refreshPihakLabels() {
+    const boxes = document.querySelectorAll('.domisili-box');
+    boxes.forEach((box, index) => {
+        const label = box.querySelector('.label-pihak');
+        if (label) {
+            label.innerText = `Pihak ${index + 1}`;
+        }
+        const btnHapus = box.querySelector('.btn-hapus');
+        if (btnHapus) {
+            btnHapus.style.display = (index === 0) ? 'none' : 'flex';
+        }
+    });
+    jumlahPihak = boxes.length;
+}
+
+function hapusPihak(id) { 
+    document.getElementById(id).remove(); 
+    refreshPihakLabels();
 }
 
 function tambahPihak() {
@@ -452,17 +596,20 @@ function tambahPihak() {
         return;
     }
 
-    jumlahPihak++;
+    uniqueIdCounter++;
     const container = document.getElementById('areaDomisili');
     
-    // Cek apakah mode input detail (Kec/Kel) diperlukan
     let isDetailLoc = (jenisPerkara === 'ps' || jenisPerkara === 'konsinyasi' || jenisPerkara === 'eksekusi');
-    if (jenisPerkara === 'banding' && document.getElementById('bandingManual').checked) isDetailLoc = true;
-    if (jenisPerkara === 'kasasi' && document.getElementById('kasasiManual').checked) isDetailLoc = true;
+    if (jenisPerkara === 'banding' && document.getElementById('bandingManual') && document.getElementById('bandingManual').checked) isDetailLoc = true;
+    if (jenisPerkara === 'kasasi' && document.getElementById('kasasiManual') && document.getElementById('kasasiManual').checked) isDetailLoc = true;
+    if (jenisPerkara === 'gugatan' && document.getElementById('gugatanManual') && document.getElementById('gugatanManual').checked) isDetailLoc = true;
+    if (jenisPerkara === 'permohonan' && document.getElementById('permohonanManual') && document.getElementById('permohonanManual').checked) isDetailLoc = true;
+    if (jenisPerkara === 'gugatan_sederhana' && document.getElementById('gsManual') && document.getElementById('gsManual').checked) isDetailLoc = true;
+    if (jenisPerkara === 'verzet' && document.getElementById('verzetManual') && document.getElementById('verzetManual').checked) isDetailLoc = true;
     
     const div = document.createElement('div');
     div.className = 'domisili-box animate__animated animate__fadeIn';
-    div.id = `box_pihak_${jumlahPihak}`;
+    div.id = `box_pihak_${uniqueIdCounter}`; 
 
     let opsiJenis = `<option value="">-- Pilih --</option>`;
     let opsiLokasi = `
@@ -471,13 +618,23 @@ function tambahPihak() {
         <option value="LN">Luar Negeri</option>
     `;
     
-    if (jenisPerkara === 'gugatan' || jenisPerkara === 'gugatan_sederhana') {
-        opsiJenis += `<option value="Penggugat">Penggugat</option><option value="Tergugat">Tergugat</option><option value="Turut Tergugat">Turut Tergugat</option>`;
-        if (jenisPerkara === 'gugatan') { 
-            opsiLokasi += `<option value="GHOIB">Tidak diketahui keberadaannya</option>`;
+    if (jenisPerkara === 'gugatan') {
+        let isCeraiTalak = document.getElementById('ceraiTalak') ? document.getElementById('ceraiTalak').checked : false;
+        let isManual = document.getElementById('gugatanManual') ? document.getElementById('gugatanManual').checked : false;
+
+        if (isManual && isCeraiTalak) {
+            opsiJenis += `<option value="Penggugat">Pemohon</option><option value="Tergugat">Termohon</option><option value="Turut Tergugat">Turut Termohon</option>`;
+        } else {
+            opsiJenis += `<option value="Penggugat">Penggugat</option><option value="Tergugat">Tergugat</option><option value="Turut Tergugat">Turut Tergugat</option>`;
         }
+        opsiLokasi += `<option value="GHOIB">Tidak diketahui keberadaannya</option>`;
+        
+    } else if (jenisPerkara === 'gugatan_sederhana') {
+        opsiJenis += `<option value="Penggugat">Penggugat</option><option value="Tergugat">Tergugat</option><option value="Turut Tergugat">Turut Tergugat</option>`;
+        opsiLokasi += `<option value="GHOIB">Tidak diketahui keberadaannya</option>`;
     } else if (jenisPerkara === 'verzet') {
         opsiJenis += `<option value="Pelawan">Pelawan (Semula Tergugat)</option><option value="Terlawan">Terlawan (Semula Penggugat)</option><option value="Turut Terlawan">Turut Terlawan</option>`;
+        opsiLokasi += `<option value="GHOIB">Tidak diketahui keberadaannya</option>`;
     } else if (jenisPerkara === 'permohonan' ) {
         opsiJenis += `<option value="Pemohon">Pemohon</option>`;
     } else if (jenisPerkara === 'konsinyasi') {
@@ -493,8 +650,8 @@ function tambahPihak() {
     }
 
     div.innerHTML = `
-        <span class="label-pihak">Data #${jumlahPihak}</span>
-        ${jumlahPihak > 1 ? `<button class="btn-hapus" onclick="hapusPihak('${div.id}')">&times;</button>` : ''}
+        <span class="label-pihak"></span>
+        <button class="btn-hapus" onclick="hapusPihak('${div.id}')" style="display: none;">&times;</button>
         <div class="row g-2">
             <div class="col-md-3">
                 <label class="small fw-bold">Jenis Pihak / Obyek</label>
@@ -540,6 +697,8 @@ function tambahPihak() {
             </div>
         </div>`;
     container.appendChild(div);
+    
+    refreshPihakLabels();
 }
 
 function toggleLokasi(el) {
@@ -570,29 +729,50 @@ function updateKab(el) {
     const kec = parent.querySelector('.sel-kec');
     const kel = parent.querySelector('.sel-kel');
     
-    // Reset child inputs
     kab.innerHTML = '<option value="0">-- Pilih --</option>';
     if(kec) { kec.innerHTML = '<option value="">-- Pilih --</option>'; kec.disabled = true; }
     if(kel) { kel.innerHTML = '<option value="0">-- Pilih --</option>'; kel.disabled = true; }
 
-    // Cek apakah ini mode detail
     let isDetailMode = (jenis === 'ps' || jenis === 'konsinyasi' || jenis === 'eksekusi');
-    if (jenis === 'banding' && document.getElementById('bandingManual').checked) isDetailMode = true;
-    if (jenis === 'kasasi' && document.getElementById('kasasiManual').checked) isDetailMode = true;
+    if (jenis === 'banding' && document.getElementById('bandingManual') && document.getElementById('bandingManual').checked) isDetailMode = true;
+    if (jenis === 'kasasi' && document.getElementById('kasasiManual') && document.getElementById('kasasiManual').checked) isDetailMode = true;
+    if (jenis === 'gugatan' && document.getElementById('gugatanManual') && document.getElementById('gugatanManual').checked) isDetailMode = true;
+    if (jenis === 'permohonan' && document.getElementById('permohonanManual') && document.getElementById('permohonanManual').checked) isDetailMode = true;
+    if (jenis === 'gugatan_sederhana' && document.getElementById('gsManual') && document.getElementById('gsManual').checked) isDetailMode = true;
+    if (jenis === 'verzet' && document.getElementById('verzetManual') && document.getElementById('verzetManual').checked) isDetailMode = true;
 
     if (prov) {
-        kab.disabled = false;
-        
-        if (isDetailMode && dataRadiusKel[prov]) {
-            // Provinsi ada di data detail (misal Jawa Timur)
-            Object.keys(dataRadiusKel[prov]).forEach(k => { kab.innerHTML += `<option value="${k}">${k}</option>`; });
-        } else {
-            // Provinsi tidak ada di data detail, pakai data umum (Radius otomatis II nanti)
-            if(dataRadiusKab[prov]) {
-                Object.keys(dataRadiusKab[prov]).forEach(k => { kab.innerHTML += `<option value="${dataRadiusKab[prov][k]}">${k}</option>`; });
+        if (prov === "Jawa Timur") {
+            kab.disabled = false; 
+            
+            if (isDetailMode && dataRadiusKel[prov]) {
+                Object.keys(dataRadiusKel[prov]).forEach(k => { kab.innerHTML += `<option value="${k}">${k}</option>`; });
+                if (dataRadiusKab[prov]) {
+                    Object.keys(dataRadiusKab[prov]).forEach(k => { 
+                        if (!dataRadiusKel[prov][k]) {
+                            kab.innerHTML += `<option value="${dataRadiusKab[prov][k]}">${k}</option>`; 
+                        }
+                    });
+                }
+            } else {
+                if(dataRadiusKab[prov]) {
+                    Object.keys(dataRadiusKab[prov]).forEach(k => { kab.innerHTML += `<option value="${dataRadiusKab[prov][k]}">${k}</option>`; });
+                }
             }
+        } else {
+            kab.disabled = true;
+            
+            let radiusPerwakilan = 200000; 
+            if (dataRadiusKab[prov]) {
+                const firstKab = Object.keys(dataRadiusKab[prov])[0];
+                radiusPerwakilan = dataRadiusKab[prov][firstKab];
+            }
+            
+            kab.innerHTML = `<option value="${radiusPerwakilan}">Seluruh wilayah ${prov}</option>`;
         }
-    } else { kab.disabled = true; }
+    } else { 
+        kab.disabled = true; 
+    }
 }
 
 function updateKec(el) {
@@ -601,11 +781,10 @@ function updateKec(el) {
     const kab = el.value;
     const kec = parent.querySelector('.sel-kec');
     
-    if (!kec) return; // Bukan mode detail UI
+    if (!kec) return; 
 
     kec.innerHTML = '<option value="">-- Pilih --</option>';
     
-    // Cek ketersediaan data detail
     if (kab && kab !== "0" && dataRadiusKel[prov] && dataRadiusKel[prov][kab]) {
         kec.disabled = false;
         Object.keys(dataRadiusKel[prov][kab]).forEach(kc => { kec.innerHTML += `<option value="${kc}">${kc}</option>`; });
@@ -630,8 +809,6 @@ function updateKel(el) {
     } else { kel.disabled = true; }
 }
 
-function hapusPihak(id) { document.getElementById(id).remove(); }
-
 function hitungEstimasi() {
     const jenis = document.getElementById("jenisPerkara").value;
     if (!jenis) {
@@ -647,6 +824,17 @@ function hitungEstimasi() {
 
     const jumlahData = boxes.length;
     let dataPihak = [];
+    
+    let hasLuarJatim = false;
+    let hasLuarSurabaya = false;
+    let isManualCase = false;
+
+    if (jenis === 'gugatan' && document.getElementById('gugatanManual') && document.getElementById('gugatanManual').checked) isManualCase = true;
+    if (jenis === 'permohonan' && document.getElementById('permohonanManual') && document.getElementById('permohonanManual').checked) isManualCase = true;
+    if (jenis === 'gugatan_sederhana' && document.getElementById('gsManual') && document.getElementById('gsManual').checked) isManualCase = true;
+    if (jenis === 'verzet' && document.getElementById('verzetManual') && document.getElementById('verzetManual').checked) isManualCase = true;
+    if (jenis === 'banding' && document.getElementById('bandingManual') && document.getElementById('bandingManual').checked) isManualCase = true;
+    if (jenis === 'kasasi' && document.getElementById('kasasiManual') && document.getElementById('kasasiManual').checked) isManualCase = true;
 
     for (let box of boxes) {
         const jenisPihak = box.querySelector('.sel-jenis-pihak').value;
@@ -657,15 +845,28 @@ function hitungEstimasi() {
 
         const lokasi = box.querySelector('.sel-lokasi').value;
         let radius = 0;
-        let isRadius1 = false; // Default Radius II (Jauh)
+        let isRadius1 = false; 
 
         if (lokasi === "DN") {
+            const selProv = box.querySelector('.sel-prov');
             const selKec = box.querySelector('.sel-kec');
             const selKel = box.querySelector('.sel-kel');
+            const selKab = box.querySelector('.sel-kab');
+            
+            if (selProv && selProv.value && selProv.value !== "Jawa Timur") {
+                hasLuarJatim = true;
+            }
+
+            if (selKab && selKab.selectedIndex > 0) {
+                const textKab = selKab.options[selKab.selectedIndex].text;
+                if (!textKab.includes("Surabaya")) {
+                    hasLuarSurabaya = true;
+                }
+            }
+
             const isInputDetail = selKec && !selKec.disabled && selKec.value !== "";
 
             if (isInputDetail) {
-                // Mode Detail (PS / Banding Manual / Kasasi Manual / Eksekusi)
                 const kec = selKec.value;
                 const kel = selKel.value;
                 
@@ -674,19 +875,21 @@ function hitungEstimasi() {
                     return; 
                 }
                 
-                // DEFISINI RADIUS I (DEKAT)
                 const radius1Kecamatan = ["Dukuh Pakis", "Jambangan", "Wonocolo", "Gayungan", "Wonokromo", "Karang Pilang", "Wiyung"];
                 isRadius1 = radius1Kecamatan.includes(kec);
                 
-                radius = parseInt(selKel.value); // Untuk PS ambil value rupiah
+                radius = parseInt(selKel.value); 
                 
             } else {
-                // Mode Umum (Kabupaten saja)
                 const valKab = box.querySelector('.sel-kab').value;
                 radius = parseInt(valKab);
                 if (valKab === "0" || isNaN(radius)) { alert("Lengkapi pilihan Provinsi dan Kabupaten/Kota!"); return; }
+                
+                isRadius1 = false;
             }
         } else if (lokasi === "LN") {
+            hasLuarJatim = true;
+            hasLuarSurabaya = true;
             radius = parseInt(box.querySelector('.val-ln').value);
             isRadius1 = false;
         } else if (lokasi === "GHOIB") {
@@ -708,6 +911,380 @@ function hitungEstimasi() {
     const materai = 10000;
     
     switch(jenis) {
+        case 'gugatan':
+            let isGugatanEcourt = document.getElementById('gugatanEcourt') ? document.getElementById('gugatanEcourt').checked : false;
+            let isGugatanManual = document.getElementById('gugatanManual') ? document.getElementById('gugatanManual').checked : false;
+            let isCeraiTalak = document.getElementById('ceraiTalak') ? document.getElementById('ceraiTalak').checked : false;
+
+            let hasPenggugat = false;
+            let hasTergugat = false;
+            let biayaRadiusP = 0;
+            let biayaRadiusT = 0;
+            let isGhoib = false;
+
+            for (let p of dataPihak) {
+                let currentRadius = p.radius;
+                
+                if (isGugatanManual && p.lokasi === 'DN') {
+                    currentRadius = p.isRadius1 ? 200000 : 250000;
+                }
+
+                if (p.jenis === 'Penggugat') {
+                    hasPenggugat = true;
+                    biayaRadiusP += currentRadius;
+                }
+                if (p.jenis === 'Tergugat' || p.jenis === 'Turut Tergugat') {
+                    hasTergugat = true;
+                    if (p.lokasi === 'GHOIB') {
+                        isGhoib = true;
+                    } else {
+                        biayaRadiusT += currentRadius; 
+                    }
+                }
+            }
+
+            if (!hasPenggugat || !hasTergugat) {
+                alert("Perhatian: Anda harus mengisi minimal 1 data Penggugat/Pemohon dan 1 data Tergugat/Termohon!"); return;
+            }
+
+            if (isGugatanEcourt) {
+                const pnbpRelaasGugatan = 20000 * jumlahData; 
+                const mediasi = 40000;
+                const pemberitahuanT = 20000;
+                const pnbpPutusan = 10000 * jumlahData; 
+                const pnbpPencabutan = 10000;
+                const registerKuasa = 10000;
+
+                if (isGhoib) {
+                    const panggilanMassmedia = 630000; 
+                    const pemberitahuanMassmedia = 270000;
+                    
+                    grandTotal = pendaftaran + atk + pnbpRelaasGugatan + mediasi + redaksi + materai + pemberitahuanT + pnbpPutusan + pnbpPencabutan + registerKuasa + panggilanMassmedia + pemberitahuanMassmedia;
+
+                    htmlDetail = `
+                        <tr><td colspan="2" class="fw-bold bg-light">GUGATAN E-COURT (GHOIB)</td></tr>
+                        <tr><td>1. Pendaftaran</td><td class="text-end">Rp 30.000</td></tr>
+                        <tr><td>2. Biaya Proses / ATK Perkara</td><td class="text-end">Rp 150.000</td></tr>
+                        <tr><td>3. Panggilan Penggugat/Pemohon</td><td class="text-end">Rp 0</td></tr>
+                        <tr><td>4. Biaya relaas Panggilan T melalui surat tercatat 3x @20rb</td><td class="text-end">Rp 0</td></tr>
+                        <tr><td>5. PNBP Relaas Panggilan Pertama P dan T (${jumlahData} Pihak)</td><td class="text-end">Rp ${pnbpRelaasGugatan.toLocaleString('id-ID')}</td></tr>
+                        <tr><td>6. Biaya relaas Panggilan T melalui Massmedia 2x @315rb</td><td class="text-end fw-bold text-success">Rp ${panggilanMassmedia.toLocaleString('id-ID')}</td></tr>
+                        <tr><td>7. Biaya panggilan mediasi</td><td class="text-end">Rp 40.000</td></tr>
+                        <tr><td>8. Biaya Sidang secara audiovisual</td><td class="text-end">Rp 0</td></tr>
+                        <tr><td>9. Redaksi</td><td class="text-end">Rp 10.000</td></tr>
+                        <tr><td>10. Materai</td><td class="text-end">Rp 10.000</td></tr>
+                        <tr><td>11. Pemberitahuan isi putusan T melalui surat tercatat</td><td class="text-end">Rp 20.000</td></tr>
+                        <tr><td>12. PNBP untuk Pemberitahuan Isi Putusan T (${jumlahData} Pihak)</td><td class="text-end">Rp ${pnbpPutusan.toLocaleString('id-ID')}</td></tr>
+                        <tr><td>13. PNBP Pencabutan perkara</td><td class="text-end">Rp 10.000</td></tr>
+                        <tr><td>14. Register Surat Kuasa</td><td class="text-end">Rp 10.000</td></tr>
+                        <tr><td>15. Pemberitahuan isi putusan T melalui Massmedia</td><td class="text-end fw-bold text-success">Rp ${pemberitahuanMassmedia.toLocaleString('id-ID')}</td></tr>
+                    `;
+                } else {
+                    grandTotal = pendaftaran + atk + biayaRadiusT + pnbpRelaasGugatan + mediasi + redaksi + materai + pemberitahuanT + pnbpPutusan + pnbpPencabutan + registerKuasa;
+
+                    htmlDetail = `
+                        <tr><td colspan="2" class="fw-bold bg-light">GUGATAN E-COURT</td></tr>
+                        <tr><td>1. Pendaftaran</td><td class="text-end">Rp 30.000</td></tr>
+                        <tr><td>2. Biaya Proses / ATK Perkara</td><td class="text-end">Rp 150.000</td></tr>
+                        <tr><td>3. Panggilan Penggugat/Pemohon</td><td class="text-end">Rp 0</td></tr>
+                        <tr><td>4. Biaya relaas Panggilan T melalui surat tercatat</td><td class="text-end fw-bold text-success">Rp ${biayaRadiusT.toLocaleString('id-ID')}</td></tr>
+                        <tr><td>5. PNBP Relaas Panggilan Pertama P dan T (${jumlahData} Pihak)</td><td class="text-end">Rp ${pnbpRelaasGugatan.toLocaleString('id-ID')}</td></tr>
+                        <tr><td>6. Biaya panggilan mediasi</td><td class="text-end">Rp 40.000</td></tr>
+                        <tr><td>7. Biaya Sidang secara audiovisual</td><td class="text-end">Rp 0</td></tr>
+                        <tr><td>8. Redaksi</td><td class="text-end">Rp 10.000</td></tr>
+                        <tr><td>9. Materai</td><td class="text-end">Rp 10.000</td></tr>
+                        <tr><td>10. Pemberitahuan isi putusan T melalui surat tercatat</td><td class="text-end">Rp 20.000</td></tr>
+                        <tr><td>11. PNBP untuk Pemberitahuan Isi Putusan T (${jumlahData} Pihak)</td><td class="text-end">Rp ${pnbpPutusan.toLocaleString('id-ID')}</td></tr>
+                        <tr><td>12. PNBP Pencabutan perkara</td><td class="text-end">Rp 10.000</td></tr>
+                        <tr><td>13. Register Surat Kuasa</td><td class="text-end">Rp 10.000</td></tr>
+                    `;
+                }
+            } else if (isGugatanManual) {
+                const pnbpPanggilan = 30000;
+                
+                let bPanggilanP = biayaRadiusP * 2;
+                let bPanggilanT = isGhoib ? 630000 : (biayaRadiusT * 3);
+                let totalPanggilan = bPanggilanP + bPanggilanT;
+                
+                let bPemberitahuan = isGhoib ? 270000 : (biayaRadiusT * 1);
+
+                if (isCeraiTalak) {
+                    let bIkrar = (biayaRadiusP * 1) + (isGhoib ? 315000 : (biayaRadiusT * 1));
+                    
+                    grandTotal = pendaftaran + atk + pnbpPanggilan + totalPanggilan + redaksi + materai + 10000 + bPemberitahuan + bIkrar;
+
+                    let barisPanggilan = isGhoib 
+                        ? `<tr><td>4a. Biaya Panggilan Pemohon 2x</td><td class="text-end fw-bold text-success">Rp ${bPanggilanP.toLocaleString('id-ID')}</td></tr>
+                           <tr><td>4b. Biaya relaas Panggilan T melalui Massmedia 2x @315rb</td><td class="text-end fw-bold text-success">Rp 630.000</td></tr>`
+                        : `<tr><td>4. Biaya panggilan Pemohon 2x dan Termohon 3x</td><td class="text-end fw-bold text-success">Rp ${totalPanggilan.toLocaleString('id-ID')}</td></tr>`;
+
+                    let barisPemberitahuan = isGhoib
+                        ? `<tr><td>8. Pemberitahuan isi putusan T melalui Massmedia</td><td class="text-end fw-bold text-success">Rp 270.000</td></tr>`
+                        : `<tr><td>8. Pemberitahuan isi putusan</td><td class="text-end fw-bold text-success">Rp ${bPemberitahuan.toLocaleString('id-ID')}</td></tr>`;
+
+                    htmlDetail = `
+                        <tr><td colspan="2" class="fw-bold bg-light">A. CERAI TALAK (MANUAL)</td></tr>
+                        <tr><td>1. Biaya pendaftaran (HHK C2)</td><td class="text-end">Rp 30.000</td></tr>
+                        <tr><td>2. Biaya Proses Perkara (ATK Perkara)</td><td class="text-end">Rp 150.000</td></tr>
+                        <tr><td>3. PNBP Panggilan pertama Pemohon, Termohon dan PBT</td><td class="text-end">Rp ${pnbpPanggilan.toLocaleString('id-ID')}</td></tr>
+                        ${barisPanggilan}
+                        <tr><td>5. Biaya redaksi (HHK E2)</td><td class="text-end">Rp 10.000</td></tr>
+                        <tr><td>6. Biaya materai</td><td class="text-end">Rp 10.000</td></tr>
+                        <tr><td>7. Pencabutan perkara</td><td class="text-end">Rp 10.000</td></tr>
+                        ${barisPemberitahuan}
+                        <tr><td>9. Biaya panggilan Ikrar Pemohon dan Termohon</td><td class="text-end fw-bold text-success">Rp ${bIkrar.toLocaleString('id-ID')}</td></tr>
+                    `;
+                } else {
+                    grandTotal = pendaftaran + atk + pnbpPanggilan + totalPanggilan + redaksi + bPemberitahuan + 10000 + materai;
+
+                    let barisPanggilan = isGhoib 
+                        ? `<tr><td>4a. Biaya Panggilan Penggugat 2x</td><td class="text-end fw-bold text-success">Rp ${bPanggilanP.toLocaleString('id-ID')}</td></tr>
+                           <tr><td>4b. Biaya relaas Panggilan T melalui Massmedia 2x @315rb</td><td class="text-end fw-bold text-success">Rp 630.000</td></tr>`
+                        : `<tr><td>4. Biaya panggilan Penggugat 2x dan Tergugat 3x</td><td class="text-end fw-bold text-success">Rp ${totalPanggilan.toLocaleString('id-ID')}</td></tr>`;
+
+                    let barisPemberitahuan = isGhoib
+                        ? `<tr><td>6. Pemberitahuan isi putusan T melalui Massmedia</td><td class="text-end fw-bold text-success">Rp 270.000</td></tr>`
+                        : `<tr><td>6. Pemberitahuan isi putusan</td><td class="text-end fw-bold text-success">Rp ${bPemberitahuan.toLocaleString('id-ID')}</td></tr>`;
+
+                    htmlDetail = `
+                        <tr><td colspan="2" class="fw-bold bg-light">A. CERAI GUGAT / GUGATAN LAINNYA (MANUAL)</td></tr>
+                        <tr><td>1. Biaya pendaftaran (HHK C2)</td><td class="text-end">Rp 30.000</td></tr>
+                        <tr><td>2. Biaya Proses Perkara (ATK Perkara)</td><td class="text-end">Rp 150.000</td></tr>
+                        <tr><td>3. PNBP Panggilan pertama Penggugat, Tergugat dan PBT</td><td class="text-end">Rp ${pnbpPanggilan.toLocaleString('id-ID')}</td></tr>
+                        ${barisPanggilan}
+                        <tr><td>5. Biaya redaksi (HHK E2)</td><td class="text-end">Rp 10.000</td></tr>
+                        ${barisPemberitahuan}
+                        <tr><td>7. Pencabutan perkara</td><td class="text-end">Rp 10.000</td></tr>
+                        <tr><td>8. Biaya materai</td><td class="text-end">Rp 10.000</td></tr>
+                    `;
+                }
+            }
+            break;
+
+        case 'permohonan':
+            let isPermohonanEcourt = document.getElementById('permohonanEcourt') ? document.getElementById('permohonanEcourt').checked : false;
+            let isPermohonanManual = document.getElementById('permohonanManual') ? document.getElementById('permohonanManual').checked : false;
+
+            let jumlahPemohon = 0;
+            let biayaRadiusPemohon = 0;
+
+            for (let p of dataPihak) {
+                if (p.jenis === 'Pemohon') {
+                    jumlahPemohon++;
+                    let currentRadius = p.radius;
+                    if (isPermohonanManual && p.lokasi === 'DN') {
+                        currentRadius = p.isRadius1 ? 200000 : 250000;
+                    }
+                    biayaRadiusPemohon += currentRadius;
+                }
+            }
+
+            if (jumlahPemohon === 0) {
+                alert("Perhatian: Anda harus mengisi minimal 1 data Pemohon!"); return;
+            }
+
+            if (isPermohonanEcourt) {
+                const pnbpRelaasPermohonan = 20000 * jumlahData; 
+                grandTotal = 30000 + 150000 + 10000 + 10000 + pnbpRelaasPermohonan + 10000 + 10000 + 20000;
+                htmlDetail = `
+                    <tr><td colspan="2" class="fw-bold bg-light">PERMOHONAN E-COURT</td></tr>
+                    <tr><td>1. Pendaftaran</td><td class="text-end">Rp 30.000</td></tr>
+                    <tr><td>2. Biaya Proses / ATK Perkara</td><td class="text-end">Rp 150.000</td></tr>
+                    <tr><td>3. Redaksi</td><td class="text-end">Rp 10.000</td></tr>
+                    <tr><td>4. Materai</td><td class="text-end">Rp 10.000</td></tr>
+                    <tr><td>5. Panggilan Pemohon</td><td class="text-end">Rp 0</td></tr>
+                    <tr><td>6. PNBP Relaas Panggilan Pertama Pemohon (${jumlahData} Pihak)</td><td class="text-end">Rp ${pnbpRelaasPermohonan.toLocaleString('id-ID')}</td></tr>
+                    <tr><td>7. Register Surat Kuasa</td><td class="text-end">Rp 10.000</td></tr>
+                    <tr><td>8. PNBP Pencabutan perkara</td><td class="text-end">Rp 10.000</td></tr>
+                    <tr><td>9. Biaya Sidang secara audiovisual</td><td class="text-end">Rp 0</td></tr>
+                    <tr><td>10. Pemberitahuan Isi Putusan Via Surat Tercatat</td><td class="text-end">Rp 20.000</td></tr>
+                `;
+            } else if (isPermohonanManual) {
+                let biayaPanggilan = biayaRadiusPemohon * 2; 
+                let pnbpPanggilan = 10000 * jumlahPemohon;   
+
+                if (jumlahPemohon === 1) {
+                    grandTotal = pendaftaran + atk + pnbpPanggilan + biayaPanggilan + redaksi + materai;
+                    htmlDetail = `
+                        <tr><td colspan="2" class="fw-bold bg-light">B. PEMOHON 1 (MANUAL)</td></tr>
+                        <tr><td>1. Biaya pendaftaran (HHK C2)</td><td class="text-end">Rp 30.000</td></tr>
+                        <tr><td>2. Biaya Proses Perkara (ATK Perkara)</td><td class="text-end">Rp 150.000</td></tr>
+                        <tr><td>3. PNBP Panggilan Pemohon</td><td class="text-end">Rp ${pnbpPanggilan.toLocaleString('id-ID')}</td></tr>
+                        <tr><td>4. Biaya Panggilan Pemohon 2x</td><td class="text-end fw-bold text-success">Rp ${biayaPanggilan.toLocaleString('id-ID')}</td></tr>
+                        <tr><td>5. Biaya redaksi (HHK E2)</td><td class="text-end">Rp 10.000</td></tr>
+                        <tr><td>6. Biaya materai</td><td class="text-end">Rp 10.000</td></tr>
+                    `;
+                } else {
+                    let pencabutan = 10000;
+                    grandTotal = pendaftaran + atk + pnbpPanggilan + biayaPanggilan + pencabutan + redaksi + materai;
+                    htmlDetail = `
+                        <tr><td colspan="2" class="fw-bold bg-light">A. PEMOHON LEBIH DARI 1 (MANUAL)</td></tr>
+                        <tr><td>1. Biaya pendaftaran (HHK C2)</td><td class="text-end">Rp 30.000</td></tr>
+                        <tr><td>2. Biaya Proses Perkara (ATK Perkara)</td><td class="text-end">Rp 150.000</td></tr>
+                        <tr><td>3. PNBP panggilan Pemohon</td><td class="text-end">Rp ${pnbpPanggilan.toLocaleString('id-ID')}</td></tr>
+                        <tr><td>4. Biaya Panggilan Pemohon 2x per orang</td><td class="text-end fw-bold text-success">Rp ${biayaPanggilan.toLocaleString('id-ID')}</td></tr>
+                        <tr><td>5. Pencabutan perkara</td><td class="text-end">Rp 10.000</td></tr>
+                        <tr><td>6. Biaya redaksi (HHK E2)</td><td class="text-end">Rp 10.000</td></tr>
+                        <tr><td>7. Biaya materai</td><td class="text-end">Rp 10.000</td></tr>
+                    `;
+                }
+            }
+            break;
+
+        case 'gugatan_sederhana':
+            let isGSEcourt = document.getElementById('gsEcourt') ? document.getElementById('gsEcourt').checked : false;
+            let isGSManual = document.getElementById('gsManual') ? document.getElementById('gsManual').checked : false;
+
+            let existP_GS = false;
+            let existT_GS = false;
+            let radiusP_GS = 0;
+            let radiusT_GS = 0;
+            let isGhoibGS = false;
+
+            for (let p of dataPihak) {
+                let currentRadius = p.radius;
+                if (isGSManual && p.lokasi === 'DN') {
+                    currentRadius = p.isRadius1 ? 200000 : 250000;
+                }
+                
+                if (p.jenis === 'Penggugat') {
+                    existP_GS = true;
+                    radiusP_GS += currentRadius;
+                }
+                if (p.jenis === 'Tergugat' || p.jenis === 'Turut Tergugat') {
+                    existT_GS = true;
+                    if (p.lokasi === 'GHOIB') isGhoibGS = true;
+                    else radiusT_GS += currentRadius;
+                }
+            }
+            
+            if (!existP_GS || !existT_GS) {
+                alert("Perhatian: Anda harus mengisi minimal 1 data Penggugat dan 1 data Tergugat!"); return;
+            }
+
+            if (isGSEcourt) {
+                grandTotal = 380000;
+                const fixedCallsGS = 120000;
+
+                htmlDetail = `
+                    <tr><td colspan="2" class="fw-bold bg-light">GUGATAN SEDERHANA E-COURT</td></tr>
+                    <tr><td>1. Biaya pendaftaran (HHK C2)</td><td class="text-end">Rp 30.000</td></tr>
+                    <tr><td>2. Biaya Proses Perkara (ATK Perkara)</td><td class="text-end">Rp 150.000</td></tr>
+                    <tr><td>3. PNBP Panggilan pertama Penggugat, Tergugat dan PBT</td><td class="text-end">Rp 30.000</td></tr>
+                    <tr><td>4. Biaya Panggilan Penggugat 2x dan Tergugat 6x</td><td class="text-end fw-bold text-success">Rp ${fixedCallsGS.toLocaleString('id-ID')}</td></tr>
+                    <tr><td>5. Biaya redaksi (HHK E2)</td><td class="text-end">Rp 10.000</td></tr>
+                    <tr><td>6. Biaya materai</td><td class="text-end">Rp 10.000</td></tr>
+                    <tr><td>7. Pencabutan perkara</td><td class="text-end">Rp 10.000</td></tr>
+                    <tr><td>8. Pemberitahuan isi putusan</td><td class="text-end">Rp 20.000</td></tr>
+                `;
+            } else if (isGSManual) {
+                let pnbpGS = 30000;
+                let bPanggilanP_GS = radiusP_GS * 2;
+                let bPanggilanT_GS = isGhoibGS ? 630000 : (radiusT_GS * 3);
+                let totalPangGS = bPanggilanP_GS + bPanggilanT_GS;
+                let bPBT_GS = isGhoibGS ? 270000 : (radiusT_GS * 1);
+
+                grandTotal = pendaftaran + atk + pnbpGS + totalPangGS + redaksi + materai + 10000 + bPBT_GS;
+
+                let rowPangGS = isGhoibGS
+                    ? `<tr><td>4a. Biaya Panggilan Penggugat 2x</td><td class="text-end fw-bold text-success">Rp ${bPanggilanP_GS.toLocaleString('id-ID')}</td></tr>
+                       <tr><td>4b. Biaya relaas Panggilan T melalui Massmedia 2x @315rb</td><td class="text-end fw-bold text-success">Rp 630.000</td></tr>`
+                    : `<tr><td>4. Biaya panggilan Penggugat 2x dan Tergugat 3x</td><td class="text-end fw-bold text-success">Rp ${totalPangGS.toLocaleString('id-ID')}</td></tr>`;
+
+                let rowPBT_GS = isGhoibGS
+                    ? `<tr><td>8. Pemberitahuan isi putusan T melalui Massmedia</td><td class="text-end fw-bold text-success">Rp 270.000</td></tr>`
+                    : `<tr><td>8. Pemberitahuan isi putusan</td><td class="text-end fw-bold text-success">Rp ${bPBT_GS.toLocaleString('id-ID')}</td></tr>`;
+
+                htmlDetail = `
+                    <tr><td colspan="2" class="fw-bold bg-light">V. PANJAR BIAYA PERKARA GUGATAN SEDERHANA (MANUAL)</td></tr>
+                    <tr><td>1. Biaya pendaftaran (HHK C2)</td><td class="text-end">Rp 30.000</td></tr>
+                    <tr><td>2. Biaya Proses Perkara (ATK Perkara)</td><td class="text-end">Rp 150.000</td></tr>
+                    <tr><td>3. PNBP Panggilan pertama Penggugat, Tergugat dan PBT</td><td class="text-end">Rp ${pnbpGS.toLocaleString('id-ID')}</td></tr>
+                    ${rowPangGS}
+                    <tr><td>5. Biaya redaksi (HHK E2)</td><td class="text-end">Rp 10.000</td></tr>
+                    <tr><td>6. Biaya materai</td><td class="text-end">Rp 10.000</td></tr>
+                    <tr><td>7. Pencabutan perkara</td><td class="text-end">Rp 10.000</td></tr>
+                    ${rowPBT_GS}
+                `;
+            }
+            break;
+
+        case 'verzet':
+            let isVerzetEcourt = document.getElementById('verzetEcourt') ? document.getElementById('verzetEcourt').checked : false;
+            let isVerzetManual = document.getElementById('verzetManual') ? document.getElementById('verzetManual').checked : false;
+
+            let existPelawan = false;
+            let existTerlawan = false;
+            let radiusPelawan = 0;
+            let radiusTerlawan = 0;
+            let isGhoibVerzet = false;
+
+            for (let p of dataPihak) {
+                let currentRadius = p.radius;
+                if (isVerzetManual && p.lokasi === 'DN') {
+                    currentRadius = p.isRadius1 ? 200000 : 250000;
+                }
+
+                if (p.jenis === 'Pelawan') {
+                    existPelawan = true; 
+                    radiusPelawan += currentRadius;
+                }
+                if (p.jenis === 'Terlawan' || p.jenis === 'Turut Terlawan') {
+                    existTerlawan = true;
+                    if (p.lokasi === 'GHOIB') isGhoibVerzet = true;
+                    else radiusTerlawan += currentRadius;
+                }
+            }
+
+            if (!existPelawan || !existTerlawan) {
+                alert("Perhatian: Harap masukkan data Pelawan dan Terlawan!"); return;
+            }
+
+            if (isVerzetEcourt) {
+                grandTotal = 310000;
+                const fixedCallsVerzet = 60000;
+
+                htmlDetail = `
+                    <tr><td colspan="2" class="fw-bold bg-light">VERZET E-COURT</td></tr>
+                    <tr><td>1. Biaya pendaftaran (HHK C2)</td><td class="text-end">Rp 30.000</td></tr>
+                    <tr><td>2. Biaya Proses Perkara (ATK Perkara)</td><td class="text-end">Rp 150.000</td></tr>
+                    <tr><td>3. PNBP Panggilan pertama Pelawan, Terlawan dan PBT</td><td class="text-end">Rp 30.000</td></tr>
+                    <tr><td>4. Biaya Panggilan Terlawan 3 X</td><td class="text-end fw-bold text-success">Rp ${fixedCallsVerzet.toLocaleString('id-ID')}</td></tr>
+                    <tr><td>5. Biaya materai</td><td class="text-end">Rp 10.000</td></tr>
+                    <tr><td>6. Biaya redaksi (HHK E2)</td><td class="text-end">Rp 10.000</td></tr>
+                    <tr><td>7. Pemberitahuan isi putusan</td><td class="text-end">Rp 20.000</td></tr>
+                `;
+            } else if (isVerzetManual) {
+                let pnbpVerzet = 30000;
+                let bPanggilanPelawan = radiusPelawan * 2;
+                let bPanggilanTerlawan = isGhoibVerzet ? 630000 : (radiusTerlawan * 2);
+                let totalPangVerzet = bPanggilanPelawan + bPanggilanTerlawan;
+                let bPBTVerzet = isGhoibVerzet ? 270000 : (radiusTerlawan * 1);
+
+                grandTotal = pendaftaran + atk + pnbpVerzet + totalPangVerzet + materai + redaksi + bPBTVerzet;
+
+                let rowPangVerzet = isGhoibVerzet
+                    ? `<tr><td>4a. Biaya Panggilan Pelawan 2x</td><td class="text-end fw-bold text-success">Rp ${bPanggilanPelawan.toLocaleString('id-ID')}</td></tr>
+                       <tr><td>4b. Biaya relaas Panggilan Terlawan melalui Massmedia 2x @315rb</td><td class="text-end fw-bold text-success">Rp 630.000</td></tr>`
+                    : `<tr><td>4. Biaya Panggilan Pelawan 2x dan Terlawan 2x</td><td class="text-end fw-bold text-success">Rp ${totalPangVerzet.toLocaleString('id-ID')}</td></tr>`;
+
+                let rowPBTVerzet = isGhoibVerzet
+                    ? `<tr><td>7. Pemberitahuan isi putusan Terlawan melalui Massmedia</td><td class="text-end fw-bold text-success">Rp 270.000</td></tr>`
+                    : `<tr><td>7. Pemberitahuan isi putusan</td><td class="text-end fw-bold text-success">Rp ${bPBTVerzet.toLocaleString('id-ID')}</td></tr>`;
+
+                htmlDetail = `
+                    <tr><td colspan="2" class="fw-bold bg-light">III. PANJAR BIAYA PERKARA VERZET (MANUAL)</td></tr>
+                    <tr><td>1. Biaya pendaftaran (HHK C2)</td><td class="text-end">Rp 30.000</td></tr>
+                    <tr><td>2. Biaya Proses Perkara (ATK Perkara)</td><td class="text-end">Rp 150.000</td></tr>
+                    <tr><td>3. PNBP Panggilan pertama Pelawan, Terlawan dan PBT</td><td class="text-end">Rp ${pnbpVerzet.toLocaleString('id-ID')}</td></tr>
+                    ${rowPangVerzet}
+                    <tr><td>5. Biaya materai</td><td class="text-end">Rp 10.000</td></tr>
+                    <tr><td>6. Biaya redaksi (HHK E2)</td><td class="text-end">Rp 10.000</td></tr>
+                    ${rowPBTVerzet}
+                `;
+            }
+            break;
+
         case 'kasasi':
             let isKasasiEcourt = document.getElementById('kasasiEcourt').checked;
             
@@ -728,7 +1305,6 @@ function hitungEstimasi() {
             }
 
             if (isKasasiEcourt) {
-                // TABEL KASASI E-COURT (Fixed Rp 600.000)
                 grandTotal = 600000;
                 htmlDetail = `
                     <tr><td colspan="2" class="fw-bold bg-light">XI. PANJAR BIAYA KASASI E-COURT</td></tr>
@@ -744,14 +1320,13 @@ function hitungEstimasi() {
                     <tr><td>10. PNBP penyampaian isi putusan kasasi P & T</td><td class="text-end">Rp 20.000</td></tr>
                 `;
             } else {
-                // TABEL KASASI MANUAL
                 let isKRadius2 = !allKasasiRadius1;
                 
                 let b_pbt_kasasi = isKRadius2 ? 250000 : 200000;
                 let b_memori_k = isKRadius2 ? 250000 : 200000;
                 let b_kontra_k = isKRadius2 ? 250000 : 200000;
                 let b_kirim_ma = 500000;
-                let b_putusan_k = isKRadius2 ? 500000 : 400000; // 2 orang
+                let b_putusan_k = isKRadius2 ? 500000 : 400000; 
                 
                 grandTotal = 50000 + b_pbt_kasasi + 10000 + b_memori_k + 10000 + b_kontra_k + 10000 + b_kirim_ma + b_putusan_k + 20000;
 
@@ -772,7 +1347,6 @@ function hitungEstimasi() {
             break;
 
         case 'banding':
-            // Logika Banding
             let isEcourt = document.getElementById('bandingEcourt').checked;
             let hasPembanding = false;
             let hasTerbanding = false;
@@ -842,155 +1416,6 @@ function hitungEstimasi() {
                     <tr><td>16. PNBP penyampaian isi putusan banding P & T</td><td class="text-end">Rp 20.000</td></tr>
                 `;
             }
-            break;
-
-            case 'gugatan':
-            let hasPenggugat = false;
-            let hasTergugat = false;
-            let biayaPanggilanTergugat = 0;
-            let isGhoib = false;
-
-            for (let p of dataPihak) {
-                if (p.jenis === 'Penggugat') hasPenggugat = true;
-                if (p.jenis === 'Tergugat' || p.jenis === 'Turut Tergugat') {
-                    hasTergugat = true;
-                    if (p.lokasi === 'GHOIB') {
-                        isGhoib = true;
-                    } else {
-                        biayaPanggilanTergugat += p.radius; 
-                    }
-                }
-            }
-
-            if (!hasPenggugat || !hasTergugat) {
-                alert("Perhatian: Anda harus mengisi minimal 1 data Penggugat dan 1 data Tergugat!"); return;
-            }
-            
-            const pnbpRelaasGugatan = 20000 * jumlahData; 
-            const mediasi = 40000;
-            const pemberitahuanT = 20000;
-            // PERUBAHAN DI SINI: Dikali dengan jumlahData (jumlah pihak)
-            const pnbpPutusan = 10000 * jumlahData; 
-            const pnbpPencabutan = 10000;
-            const registerKuasa = 10000;
-
-            if (isGhoib) {
-                const panggilanMassmedia = 630000; // 2x @315rb
-                const pemberitahuanMassmedia = 270000;
-                
-                grandTotal = pendaftaran + atk + pnbpRelaasGugatan + mediasi + redaksi + materai + pemberitahuanT + pnbpPutusan + pnbpPencabutan + registerKuasa + panggilanMassmedia + pemberitahuanMassmedia;
-
-                htmlDetail = `
-                    <tr><td>1. Pendaftaran</td><td class="text-end">Rp 30.000</td></tr>
-                    <tr><td>2. Biaya Proses / ATK Perkara</td><td class="text-end">Rp 150.000</td></tr>
-                    <tr><td>3. Panggilan Penggugat/Pemohon</td><td class="text-end">Rp 0</td></tr>
-                    <tr><td>4. Biaya relaas Panggilan T melalui surat tercatat 3x @20rb</td><td class="text-end">Rp 0</td></tr>
-                    <tr><td>5. PNBP Relaas Panggilan Pertama P dan T (${jumlahData} Pihak)</td><td class="text-end">Rp ${pnbpRelaasGugatan.toLocaleString('id-ID')}</td></tr>
-                    <tr><td>6. Biaya relaas Panggilan T melalui Massmedia 2x @315rb</td><td class="text-end fw-bold text-success">Rp ${panggilanMassmedia.toLocaleString('id-ID')}</td></tr>
-                    <tr><td>7. Biaya panggilan mediasi</td><td class="text-end">Rp 40.000</td></tr>
-                    <tr><td>8. Biaya Sidang secara audiovisual</td><td class="text-end">Rp 0</td></tr>
-                    <tr><td>9. Redaksi</td><td class="text-end">Rp 10.000</td></tr>
-                    <tr><td>10. Materai</td><td class="text-end">Rp 10.000</td></tr>
-                    <tr><td>11. Pemberitahuan isi putusan T melalui surat tercatat</td><td class="text-end">Rp 20.000</td></tr>
-                    <tr><td>12. PNBP untuk Pemberitahuan Isi Putusan T (${jumlahData} Pihak)</td><td class="text-end">Rp ${pnbpPutusan.toLocaleString('id-ID')}</td></tr>
-                    <tr><td>13. PNBP Pencabutan perkara</td><td class="text-end">Rp 10.000</td></tr>
-                    <tr><td>14. Register Surat Kuasa</td><td class="text-end">Rp 10.000</td></tr>
-                    <tr><td>15. Pemberitahuan isi putusan T melalui Massmedia</td><td class="text-end fw-bold text-success">Rp ${pemberitahuanMassmedia.toLocaleString('id-ID')}</td></tr>
-                `;
-            } else {
-                grandTotal = pendaftaran + atk + biayaPanggilanTergugat + pnbpRelaasGugatan + mediasi + redaksi + materai + pemberitahuanT + pnbpPutusan + pnbpPencabutan + registerKuasa;
-
-                htmlDetail = `
-                    <tr><td>1. Pendaftaran</td><td class="text-end">Rp 30.000</td></tr>
-                    <tr><td>2. Biaya Proses / ATK Perkara</td><td class="text-end">Rp 150.000</td></tr>
-                    <tr><td>3. Panggilan Penggugat/Pemohon</td><td class="text-end">Rp 0</td></tr>
-                    <tr><td>4. Biaya relaas Panggilan T melalui surat tercatat</td><td class="text-end fw-bold text-success">Rp ${biayaPanggilanTergugat.toLocaleString('id-ID')}</td></tr>
-                    <tr><td>5. PNBP Relaas Panggilan Pertama P dan T (${jumlahData} Pihak)</td><td class="text-end">Rp ${pnbpRelaasGugatan.toLocaleString('id-ID')}</td></tr>
-                    <tr><td>6. Biaya panggilan mediasi</td><td class="text-end">Rp 40.000</td></tr>
-                    <tr><td>7. Biaya Sidang secara audiovisual</td><td class="text-end">Rp 0</td></tr>
-                    <tr><td>8. Redaksi</td><td class="text-end">Rp 10.000</td></tr>
-                    <tr><td>9. Materai</td><td class="text-end">Rp 10.000</td></tr>
-                    <tr><td>10. Pemberitahuan isi putusan T melalui surat tercatat</td><td class="text-end">Rp 20.000</td></tr>
-                    <tr><td>11. PNBP untuk Pemberitahuan Isi Putusan T (${jumlahData} Pihak)</td><td class="text-end">Rp ${pnbpPutusan.toLocaleString('id-ID')}</td></tr>
-                    <tr><td>12. PNBP Pencabutan perkara</td><td class="text-end">Rp 10.000</td></tr>
-                    <tr><td>13. Register Surat Kuasa</td><td class="text-end">Rp 10.000</td></tr>
-                `;
-            }
-            break;
-
-        case 'gugatan_sederhana':
-            let existP_GS = false;
-            let existT_GS = false;
-
-            for (let p of dataPihak) {
-                if (p.jenis === 'Penggugat') existP_GS = true;
-                if (p.jenis === 'Tergugat' || p.jenis === 'Turut Tergugat') existT_GS = true;
-            }
-            
-            if (!existP_GS || !existT_GS) {
-                alert("Perhatian: Anda harus mengisi minimal 1 data Penggugat dan 1 data Tergugat!"); return;
-            }
-
-            grandTotal = 380000;
-            const fixedCallsGS = 120000;
-
-            htmlDetail = `
-                <tr><td colspan="2" class="fw-bold bg-light">D. PERKARA GUGATAN SEDERHANA</td></tr>
-                <tr><td>1. Biaya pendaftaran (HHK C2)</td><td class="text-end">Rp 30.000</td></tr>
-                <tr><td>2. Biaya Proses Perkara (ATK Perkara)</td><td class="text-end">Rp 150.000</td></tr>
-                <tr><td>3. PNBP Panggilan pertama Penggugat, Tergugat dan PBT</td><td class="text-end">Rp 30.000</td></tr>
-                <tr><td>4. Biaya Panggilan Penggugat 2x dan Tergugat 6x</td><td class="text-end fw-bold text-success">Rp ${fixedCallsGS.toLocaleString('id-ID')}</td></tr>
-                <tr><td>5. Biaya redaksi (HHK E2)</td><td class="text-end">Rp 10.000</td></tr>
-                <tr><td>6. Biaya materai</td><td class="text-end">Rp 10.000</td></tr>
-                <tr><td>7. Pencabutan perkara</td><td class="text-end">Rp 10.000</td></tr>
-                <tr><td>8. Pemberitahuan isi putusan</td><td class="text-end">Rp 20.000</td></tr>
-            `;
-            break;
-
-        case 'verzet':
-            let existPelawan = false;
-            let existTerlawan = false;
-
-            for (let p of dataPihak) {
-                if (p.jenis === 'Pelawan') existPelawan = true; 
-                if (p.jenis === 'Terlawan' || p.jenis === 'Turut Terlawan') existTerlawan = true;
-            }
-
-            if (!existPelawan || !existTerlawan) {
-                alert("Perhatian: Harap masukkan data Pelawan dan Terlawan!"); return;
-            }
-
-            grandTotal = 310000;
-            const fixedCallsVerzet = 60000;
-
-            htmlDetail = `
-                <tr><td colspan="2" class="fw-bold bg-light">E. PERKARA VERZET</td></tr>
-                <tr><td>1. Biaya pendaftaran (HHK C2)</td><td class="text-end">Rp 30.000</td></tr>
-                <tr><td>2. Biaya Proses Perkara (ATK Perkara)</td><td class="text-end">Rp 150.000</td></tr>
-                <tr><td>3. PNBP Panggilan pertama Pelawan, Terlawan dan PBT</td><td class="text-end">Rp 30.000</td></tr>
-                <tr><td>4. Biaya Panggilan Terlawan 3 X</td><td class="text-end fw-bold text-success">Rp ${fixedCallsVerzet.toLocaleString('id-ID')}</td></tr>
-                <tr><td>5. Biaya materai</td><td class="text-end">Rp 10.000</td></tr>
-                <tr><td>6. Biaya redaksi (HHK E2)</td><td class="text-end">Rp 10.000</td></tr>
-                <tr><td>7. Pemberitahuan isi putusan</td><td class="text-end">Rp 20.000</td></tr>
-            `;
-            break;
-
-        case 'permohonan':
-            const pnbpRelaasPermohonan = 20000 * jumlahData; 
-            grandTotal = 30000 + 150000 + 10000 + 10000 + pnbpRelaasPermohonan + 10000 + 10000 + 20000;
-            htmlDetail = `
-                <tr><td>1. Pendaftaran</td><td class="text-end">Rp 30.000</td></tr>
-                <tr><td>2. Biaya Proses / ATK Perkara</td><td class="text-end">Rp 150.000</td></tr>
-                <tr><td>3. Redaksi</td><td class="text-end">Rp 10.000</td></tr>
-                <tr><td>4. Materai</td><td class="text-end">Rp 10.000</td></tr>
-                <tr><td>5. Panggilan Pemohon</td><td class="text-end">Rp 0</td></tr>
-                <tr><td>6. PNBP Relaas Panggilan Pertama Pemohon (${jumlahData} Pihak)</td><td class="text-end">Rp ${pnbpRelaasPermohonan.toLocaleString('id-ID')}</td></tr>
-                <tr><td>7. Panggilan Termohon</td><td class="text-end">Rp 0</td></tr>
-                <tr><td>8. Register Surat Kuasa</td><td class="text-end">Rp 10.000</td></tr>
-                <tr><td>9. PNBP Pencabutan perkara</td><td class="text-end">Rp 10.000</td></tr>
-                <tr><td>10. Biaya Sidang secara audiovisual</td><td class="text-end">Rp 0</td></tr>
-                <tr><td>11. Pemberitahuan Isi Putusan Via Surat Tercatat</td><td class="text-end">Rp 20.000</td></tr>
-            `;
             break;
 
         case 'konsinyasi':
@@ -1199,9 +1624,16 @@ function hitungEstimasi() {
     
     document.getElementById("detailBiaya").innerHTML = htmlDetail;
     document.getElementById("totalAkhir").innerText = `Rp ${grandTotal.toLocaleString('id-ID')}`;
+    
+    // Tampilkan Peringatan Luar Jatim jika diperlukan
+    document.getElementById("peringatanLuarJatim").style.display = hasLuarJatim ? "block" : "none";
+    
+    // Tampilkan Peringatan Manual (di Luar Surabaya) jika diperlukan
+    document.getElementById("peringatanManualLuarSurabaya").style.display = (isManualCase && hasLuarSurabaya) ? "block" : "none";
+    
     document.getElementById("resultArea").style.display = "block";
-const btnCetak = document.getElementById('btnCetak');
-if (btnCetak) {btnCetak.style.display = 'block';}
+    const btnCetak = document.getElementById('btnCetak');
+    if (btnCetak) {btnCetak.style.display = 'block';}
 }
 
 window.onload = function() { resetPihak(); };
