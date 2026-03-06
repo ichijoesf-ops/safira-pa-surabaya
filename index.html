@@ -837,23 +837,15 @@ function updateKel(el) {
 
 function hitungEstimasi() {
     const jenis = document.getElementById("jenisPerkara").value;
-    if (!jenis) {
-        alert("Silakan pilih 'Jenis Perkara' terlebih dahulu di bagian atas!");
-        return;
-    }
+    if (!jenis) { alert("Silakan pilih 'Jenis Perkara' terlebih dahulu di bagian atas!"); return; }
 
     const boxes = document.querySelectorAll('.domisili-box');
-    if (boxes.length === 0) {
-        alert("Silakan tambahkan data pihak/obyek terlebih dahulu!");
-        return;
-    }
+    if (boxes.length === 0) { alert("Silakan tambahkan data pihak/obyek terlebih dahulu!"); return; }
 
     const jumlahData = boxes.length;
     let dataPihak = [];
     
-    let hasLuarJatim = false;
-    let hasLuarSurabaya = false;
-    let isManualCase = false;
+    let hasLuarJatim = false, hasLuarSurabaya = false, isManualCase = false;
 
     if (jenis === 'gugatan' && document.getElementById('gugatanManual') && document.getElementById('gugatanManual').checked) isManualCase = true;
     if (jenis === 'permohonan' && document.getElementById('permohonanManual') && document.getElementById('permohonanManual').checked) isManualCase = true;
@@ -865,87 +857,323 @@ function hitungEstimasi() {
 
     for (let box of boxes) {
         const jenisPihak = box.querySelector('.sel-jenis-pihak').value;
-        if (!jenisPihak) {
-            alert("Harap pilih Jenis Pihak/Obyek pada semua data yang Anda masukkan!");
-            return;
-        }
+        if (!jenisPihak) { alert("Harap pilih Jenis Pihak/Obyek pada semua data yang Anda masukkan!"); return; }
 
         const lokasi = box.querySelector('.sel-lokasi').value;
-        let radius = 0;
-        let isRadius1 = false; 
+        let radius = 0, isRadius1 = false; 
 
         if (lokasi === "DN") {
-            const selProv = box.querySelector('.sel-prov');
-            const selKec = box.querySelector('.sel-kec');
-            const selKel = box.querySelector('.sel-kel');
-            const selKab = box.querySelector('.sel-kab');
+            const selProv = box.querySelector('.sel-prov'), selKec = box.querySelector('.sel-kec'), selKel = box.querySelector('.sel-kel'), selKab = box.querySelector('.sel-kab');
             
-            if (selProv && selProv.value && selProv.value !== "Jawa Timur") {
-                hasLuarJatim = true;
-            }
-
-            if (selKab && selKab.selectedIndex > 0) {
-                const textKab = selKab.options[selKab.selectedIndex].text;
-                if (!textKab.includes("Surabaya")) {
-                    hasLuarSurabaya = true;
-                }
-            }
+            if (selProv && selProv.value && selProv.value !== "Jawa Timur") hasLuarJatim = true;
+            if (selKab && selKab.selectedIndex > 0 && !selKab.options[selKab.selectedIndex].text.includes("Surabaya")) hasLuarSurabaya = true;
 
             const isInputDetail = selKec && !selKec.disabled && selKec.value !== "";
-
             if (isInputDetail) {
-                const kec = selKec.value;
-                const kel = selKel.value;
-                
-                if (!kec || kel === "0") { 
-                    alert("Lengkapi pilihan domisili/obyek hingga Kecamatan dan Kelurahan!"); 
-                    return; 
-                }
-                
+                const kec = selKec.value, kel = selKel.value;
+                if (!kec || kel === "0") { alert("Lengkapi pilihan domisili/obyek hingga Kecamatan dan Kelurahan!"); return; }
                 const radius1Kecamatan = ["Dukuh Pakis", "Jambangan", "Wonocolo", "Gayungan", "Wonokromo", "Karang Pilang", "Wiyung"];
                 isRadius1 = radius1Kecamatan.includes(kec);
-                
                 radius = parseInt(selKel.value); 
-                
             } else {
                 const valKab = box.querySelector('.sel-kab').value;
                 radius = parseInt(valKab);
                 if (valKab === "0" || isNaN(radius)) { alert("Lengkapi pilihan Provinsi dan Kabupaten/Kota!"); return; }
-                
                 isRadius1 = false;
             }
         } else if (lokasi === "LN") {
-            hasLuarJatim = true;
-            hasLuarSurabaya = true;
-            radius = parseInt(box.querySelector('.val-ln').value);
-            isRadius1 = false;
-        } else if (lokasi === "GHOIB") {
-            radius = 0;
-            isRadius1 = false;
-        } else {
-            alert("Pilih lokasi untuk semua inputan!"); return;
-        }
+            hasLuarJatim = true; hasLuarSurabaya = true; radius = parseInt(box.querySelector('.val-ln').value); isRadius1 = false;
+        } else if (lokasi === "GHOIB") { radius = 0; isRadius1 = false; }
+        else { alert("Pilih lokasi untuk semua inputan!"); return; }
 
         dataPihak.push({ jenis: jenisPihak, radius: radius, isRadius1: isRadius1, lokasi: lokasi });
     }
 
-    let grandTotal = 0;
-    let htmlDetail = '';
-
-    const pendaftaran = 30000;
-    const atk = 150000;
-    const redaksi = 10000;
-    const materai = 10000;
+    let grandTotal = 0, htmlDetail = '';
+    const pendaftaran = 30000, atk = 150000, redaksi = 10000, materai = 10000;
     
     switch(jenis) {
+        // ==========================================
+        // 1. GUGATAN (FULL DETAIL 13-15 POIN)
+        // ==========================================
+        case 'gugatan':
+            let isGugatanEcourt = document.getElementById('gugatanEcourt') ? document.getElementById('gugatanEcourt').checked : false;
+            let isGugatanManual = document.getElementById('gugatanManual') ? document.getElementById('gugatanManual').checked : false;
+            let isCeraiTalak = document.getElementById('ceraiTalak') ? document.getElementById('ceraiTalak').checked : false;
+
+            let hasPenggugat = false, hasTergugat = false, biayaRadiusP = 0, biayaRadiusT = 0, isGhoib = false, isLuarNegeri = false;
+
+            for (let p of dataPihak) {
+                let currentRadius = isGugatanManual && p.lokasi === 'DN' ? (p.isRadius1 ? 200000 : 250000) : p.radius;
+                if (p.lokasi === 'LN') isLuarNegeri = true;
+
+                if (p.jenis === 'Penggugat') { hasPenggugat = true; biayaRadiusP += currentRadius; }
+                if (p.jenis === 'Tergugat' || p.jenis === 'Turut Tergugat') {
+                    hasTergugat = true;
+                    if (p.lokasi === 'GHOIB') isGhoib = true; else biayaRadiusT += currentRadius; 
+                }
+            }
+
+            if (!hasPenggugat || !hasTergugat) { alert("Perhatian: Anda harus mengisi minimal 1 data Penggugat/Pemohon dan 1 data Tergugat/Termohon!"); return; }
+
+            if (isGugatanEcourt) {
+                const pnbpRelaasGugatan = 20000 * jumlahData, mediasi = 40000, pemberitahuanT = 20000, pnbpPencabutan = 10000, registerKuasa = 10000;
+
+                if (isLuarNegeri) {
+                    const pnbpPutusanLN = 20000; 
+                    grandTotal = pendaftaran + atk + biayaRadiusT + pnbpRelaasGugatan + mediasi + redaksi + materai + pemberitahuanT + pnbpPutusanLN + pnbpPencabutan + registerKuasa;
+                    htmlDetail = `
+                        <tr><td colspan="2" class="fw-bold bg-light">GUGATAN E-COURT (LUAR NEGERI)</td></tr>
+                        <tr><td>1. Pendaftaran</td><td class="text-end">Rp 30.000</td></tr>
+                        <tr><td>2. Biaya Proses / ATK Perkara</td><td class="text-end">Rp 150.000</td></tr>
+                        <tr><td>3. Panggilan Penggugat/Pemohon</td><td class="text-end">Rp 0</td></tr>
+                        <tr><td>4. Relaas Panggilan T via Surat Tercatat</td><td class="text-end fw-bold text-success">Rp ${biayaRadiusT.toLocaleString('id-ID')}</td></tr>
+                        <tr><td>5. PNBP Relaas Panggilan Pertama P & T</td><td class="text-end">Rp ${pnbpRelaasGugatan.toLocaleString('id-ID')}</td></tr>
+                        <tr><td>6. Biaya panggilan mediasi</td><td class="text-end">Rp 40.000</td></tr>
+                        <tr><td>7. Biaya Sidang secara audiovisual</td><td class="text-end">Rp 0</td></tr>
+                        <tr><td>8. Redaksi</td><td class="text-end">Rp 10.000</td></tr>
+                        <tr><td>9. Materai</td><td class="text-end">Rp 10.000</td></tr>
+                        <tr><td>10. Pemberitahuan isi putusan T (Surat Tercatat)</td><td class="text-end">Rp 20.000</td></tr>
+                        <tr><td>11. PNBP Pemberitahuan Isi Putusan T</td><td class="text-end">Rp 20.000</td></tr>
+                        <tr><td>12. PNBP Pencabutan perkara</td><td class="text-end">Rp 10.000</td></tr>
+                        <tr><td>13. Register Surat Kuasa</td><td class="text-end">Rp 10.000</td></tr>`;
+                } else if (isGhoib) {
+                    const pnbpPutusan = 10000 * jumlahData, panggilanMassmedia = 630000, pemberitahuanMassmedia = 270000;
+                    grandTotal = pendaftaran + atk + pnbpRelaasGugatan + mediasi + redaksi + materai + pemberitahuanT + pnbpPutusan + pnbpPencabutan + registerKuasa + panggilanMassmedia + pemberitahuanMassmedia;
+                    htmlDetail = `
+                        <tr><td colspan="2" class="fw-bold bg-light">GUGATAN E-COURT (GHOIB)</td></tr>
+                        <tr><td>1. Pendaftaran</td><td class="text-end">Rp 30.000</td></tr>
+                        <tr><td>2. Biaya Proses / ATK Perkara</td><td class="text-end">Rp 150.000</td></tr>
+                        <tr><td>3. Panggilan Penggugat/Pemohon</td><td class="text-end">Rp 0</td></tr>
+                        <tr><td>4. Biaya relaas Panggilan T melalui surat tercatat</td><td class="text-end">Rp 0</td></tr>
+                        <tr><td>5. PNBP Relaas Panggilan Pertama P & T (${jumlahData} Pihak)</td><td class="text-end">Rp ${pnbpRelaasGugatan.toLocaleString('id-ID')}</td></tr>
+                        <tr><td>6. Biaya relaas Panggilan T Massmedia 2x @315rb</td><td class="text-end fw-bold text-success">Rp ${panggilanMassmedia.toLocaleString('id-ID')}</td></tr>
+                        <tr><td>7. Biaya panggilan mediasi</td><td class="text-end">Rp 40.000</td></tr>
+                        <tr><td>8. Biaya Sidang secara audiovisual</td><td class="text-end">Rp 0</td></tr>
+                        <tr><td>9. Redaksi</td><td class="text-end">Rp 10.000</td></tr>
+                        <tr><td>10. Materai</td><td class="text-end">Rp 10.000</td></tr>
+                        <tr><td>11. Pemberitahuan isi putusan T (Surat Tercatat)</td><td class="text-end">Rp 20.000</td></tr>
+                        <tr><td>12. PNBP Pemberitahuan Isi Putusan T (${jumlahData} Pihak)</td><td class="text-end">Rp ${pnbpPutusan.toLocaleString('id-ID')}</td></tr>
+                        <tr><td>13. PNBP Pencabutan perkara</td><td class="text-end">Rp 10.000</td></tr>
+                        <tr><td>14. Register Surat Kuasa</td><td class="text-end">Rp 10.000</td></tr>
+                        <tr><td>15. Pemberitahuan putusan T melalui Massmedia</td><td class="text-end fw-bold text-success">Rp ${pemberitahuanMassmedia.toLocaleString('id-ID')}</td></tr>`;
+                } else {
+                    const pnbpPutusan = 10000 * jumlahData;
+                    grandTotal = pendaftaran + atk + biayaRadiusT + pnbpRelaasGugatan + mediasi + redaksi + materai + pemberitahuanT + pnbpPutusan + pnbpPencabutan + registerKuasa;
+                    htmlDetail = `
+                        <tr><td colspan="2" class="fw-bold bg-light">GUGATAN E-COURT</td></tr>
+                        <tr><td>1. Pendaftaran</td><td class="text-end">Rp 30.000</td></tr>
+                        <tr><td>2. Biaya Proses / ATK Perkara</td><td class="text-end">Rp 150.000</td></tr>
+                        <tr><td>3. Panggilan Penggugat/Pemohon</td><td class="text-end">Rp 0</td></tr>
+                        <tr><td>4. Biaya relaas Panggilan T melalui surat tercatat</td><td class="text-end fw-bold text-success">Rp ${biayaRadiusT.toLocaleString('id-ID')}</td></tr>
+                        <tr><td>5. PNBP Relaas Panggilan Pertama P & T (${jumlahData} Pihak)</td><td class="text-end">Rp ${pnbpRelaasGugatan.toLocaleString('id-ID')}</td></tr>
+                        <tr><td>6. Biaya panggilan mediasi</td><td class="text-end">Rp 40.000</td></tr>
+                        <tr><td>7. Biaya Sidang secara audiovisual</td><td class="text-end">Rp 0</td></tr>
+                        <tr><td>8. Redaksi</td><td class="text-end">Rp 10.000</td></tr>
+                        <tr><td>9. Materai</td><td class="text-end">Rp 10.000</td></tr>
+                        <tr><td>10. Pemberitahuan isi putusan T melalui surat tercatat</td><td class="text-end">Rp 20.000</td></tr>
+                        <tr><td>11. PNBP Pemberitahuan Isi Putusan T (${jumlahData} Pihak)</td><td class="text-end">Rp ${pnbpPutusan.toLocaleString('id-ID')}</td></tr>
+                        <tr><td>12. PNBP Pencabutan perkara</td><td class="text-end">Rp 10.000</td></tr>
+                        <tr><td>13. Register Surat Kuasa</td><td class="text-end">Rp 10.000</td></tr>`;
+                }
+            } else if (isGugatanManual) {
+                const pnbpPanggilan = 30000;
+                let bPanggilanP = biayaRadiusP * 2, bPanggilanT = isGhoib ? 630000 : (biayaRadiusT * 3);
+                let totalPanggilan = bPanggilanP + bPanggilanT, bPemberitahuan = isGhoib ? 270000 : (biayaRadiusT * 1);
+
+                let barisPanggilan = isGhoib 
+                    ? `<tr><td>4a. Panggilan Penggugat 2x</td><td class="text-end fw-bold text-success">Rp ${bPanggilanP.toLocaleString('id-ID')}</td></tr>
+                       <tr><td>4b. Relaas Panggilan T Massmedia 2x @315rb</td><td class="text-end fw-bold text-success">Rp 630.000</td></tr>`
+                    : `<tr><td>4. Panggilan Penggugat 2x dan Tergugat 3x</td><td class="text-end fw-bold text-success">Rp ${totalPanggilan.toLocaleString('id-ID')}</td></tr>`;
+
+                let barisPemberitahuan = isGhoib
+                    ? `<tr><td>8. Pemberitahuan isi putusan T via Massmedia</td><td class="text-end fw-bold text-success">Rp 270.000</td></tr>`
+                    : `<tr><td>8. Pemberitahuan isi putusan</td><td class="text-end fw-bold text-success">Rp ${bPemberitahuan.toLocaleString('id-ID')}</td></tr>`;
+
+                if (isCeraiTalak) {
+                    let bIkrar = (biayaRadiusP * 1) + (isGhoib ? 315000 : (biayaRadiusT * 1));
+                    grandTotal = pendaftaran + atk + pnbpPanggilan + totalPanggilan + redaksi + materai + 10000 + bPemberitahuan + bIkrar;
+                    htmlDetail = `
+                        <tr><td colspan="2" class="fw-bold bg-light">A. CERAI TALAK (MANUAL)</td></tr>
+                        <tr><td>1. Biaya pendaftaran (HHK C2)</td><td class="text-end">Rp 30.000</td></tr>
+                        <tr><td>2. Biaya Proses Perkara (ATK Perkara)</td><td class="text-end">Rp 150.000</td></tr>
+                        <tr><td>3. PNBP Panggilan P, T dan PBT</td><td class="text-end">Rp ${pnbpPanggilan.toLocaleString('id-ID')}</td></tr>
+                        ${barisPanggilan}
+                        <tr><td>5. Biaya redaksi (HHK E2)</td><td class="text-end">Rp 10.000</td></tr>
+                        <tr><td>6. Biaya materai</td><td class="text-end">Rp 10.000</td></tr>
+                        <tr><td>7. Pencabutan perkara</td><td class="text-end">Rp 10.000</td></tr>
+                        ${barisPemberitahuan}
+                        <tr><td>9. Biaya panggilan Ikrar Pemohon dan Termohon</td><td class="text-end fw-bold text-success">Rp ${bIkrar.toLocaleString('id-ID')}</td></tr>`;
+                } else {
+                    grandTotal = pendaftaran + atk + pnbpPanggilan + totalPanggilan + redaksi + bPemberitahuan + 10000 + materai;
+                    htmlDetail = `
+                        <tr><td colspan="2" class="fw-bold bg-light">A. CERAI GUGAT / LAINNYA (MANUAL)</td></tr>
+                        <tr><td>1. Biaya pendaftaran (HHK C2)</td><td class="text-end">Rp 30.000</td></tr>
+                        <tr><td>2. Biaya Proses Perkara (ATK Perkara)</td><td class="text-end">Rp 150.000</td></tr>
+                        <tr><td>3. PNBP Panggilan P, T dan PBT</td><td class="text-end">Rp ${pnbpPanggilan.toLocaleString('id-ID')}</td></tr>
+                        ${barisPanggilan}
+                        <tr><td>5. Biaya redaksi (HHK E2)</td><td class="text-end">Rp 10.000</td></tr>
+                        ${barisPemberitahuan.replace('8.', '6.')}
+                        <tr><td>7. Pencabutan perkara</td><td class="text-end">Rp 10.000</td></tr>
+                        <tr><td>8. Biaya materai</td><td class="text-end">Rp 10.000</td></tr>`;
+                }
+            }
+            break;
+
+// ==========================================
+        // 2. PERMOHONAN (FULL DETAIL SESUAI PDF)
+        // ==========================================
+        case 'permohonan':
+            let isPermohonanEcourt = document.getElementById('permohonanEcourt') ? document.getElementById('permohonanEcourt').checked : false;
+            let isPermohonanManual = document.getElementById('permohonanManual') ? document.getElementById('permohonanManual').checked : false;
+            let jumlahPemohon = 0, biayaRadiusPemohon = 0;
+
+            for (let p of dataPihak) {
+                if (p.jenis === 'Pemohon') {
+                    jumlahPemohon++;
+                    biayaRadiusPemohon += (isPermohonanManual && p.lokasi === 'DN') ? (p.isRadius1 ? 200000 : 250000) : p.radius;
+                }
+            }
+
+            if (jumlahPemohon === 0) { alert("Perhatian: Anda harus mengisi minimal 1 data Pemohon!"); return; }
+
+            if (isPermohonanEcourt) {
+                // Pola Sesuai PDF: Biaya Tetap (240.000) + PNBP Relaas (20.000 * Jumlah Pihak)
+                const pnbpRelaasPermohonan = 20000 * jumlahData;
+                
+                grandTotal = 30000 + 150000 + 10000 + 10000 + pnbpRelaasPermohonan + 10000 + 10000 + 20000;
+                
+                htmlDetail = `
+                    <tr><td colspan="2" class="fw-bold bg-light">PERMOHONAN E-COURT</td></tr>
+                    <tr><td>1. Pendaftaran</td><td class="text-end">Rp 30.000</td></tr>
+                    <tr><td>2. Biaya Proses / ATK Perkara</td><td class="text-end">Rp 150.000</td></tr>
+                    <tr><td>3. Redaksi</td><td class="text-end">Rp 10.000</td></tr>
+                    <tr><td>4. Materai</td><td class="text-end">Rp 10.000</td></tr>
+                    <tr><td>5. Panggilan Pemohon</td><td class="text-end">Rp 0</td></tr>
+                    <tr><td>6. PNBP Relaas Panggilan Pertama Pemohon</td><td class="text-end">Rp ${pnbpRelaasPermohonan.toLocaleString('id-ID')}</td></tr>
+                    <tr><td>7. Panggilan Termohon</td><td class="text-end">Rp 0</td></tr>
+                    <tr><td>8. Register Surat Kuasa</td><td class="text-end">Rp 10.000</td></tr>
+                    <tr><td>9. PNBP Pencabutan perkara</td><td class="text-end">Rp 10.000</td></tr>
+                    <tr><td>10. Biaya Sidang secara audiovisual</td><td class="text-end">Rp 0</td></tr>
+                    <tr><td>11. Pemberitahuan Isi Putusan Via Surat Tercatat</td><td class="text-end">Rp 20.000</td></tr>`;
+            } else if (isPermohonanManual) {
+                let biayaPanggilan = biayaRadiusPemohon * 2, pnbpPanggilan = 10000 * jumlahPemohon;   
+
+                if (jumlahPemohon === 1) {
+                    grandTotal = pendaftaran + atk + pnbpPanggilan + biayaPanggilan + redaksi + materai;
+                    htmlDetail = `
+                        <tr><td colspan="2" class="fw-bold bg-light">B. PEMOHON 1 (MANUAL)</td></tr>
+                        <tr><td>1. Biaya pendaftaran (HHK C2)</td><td class="text-end">Rp 30.000</td></tr>
+                        <tr><td>2. Biaya Proses Perkara (ATK Perkara)</td><td class="text-end">Rp 150.000</td></tr>
+                        <tr><td>3. PNBP Panggilan Pemohon</td><td class="text-end">Rp ${pnbpPanggilan.toLocaleString('id-ID')}</td></tr>
+                        <tr><td>4. Biaya Panggilan Pemohon 2x</td><td class="text-end fw-bold text-success">Rp ${biayaPanggilan.toLocaleString('id-ID')}</td></tr>
+                        <tr><td>5. Biaya redaksi (HHK E2)</td><td class="text-end">Rp 10.000</td></tr>
+                        <tr><td>6. Biaya materai</td><td class="text-end">Rp 10.000</td></tr>`;
+                } else {
+                    grandTotal = pendaftaran + atk + pnbpPanggilan + biayaPanggilan + 10000 + redaksi + materai;
+                    htmlDetail = `
+                        <tr><td colspan="2" class="fw-bold bg-light">A. PEMOHON LEBIH DARI 1 (MANUAL)</td></tr>
+                        <tr><td>1. Biaya pendaftaran (HHK C2)</td><td class="text-end">Rp 30.000</td></tr>
+                        <tr><td>2. Biaya Proses Perkara (ATK Perkara)</td><td class="text-end">Rp 150.000</td></tr>
+                        <tr><td>3. PNBP panggilan Pemohon</td><td class="text-end">Rp ${pnbpPanggilan.toLocaleString('id-ID')}</td></tr>
+                        <tr><td>4. Biaya Panggilan Pemohon 2x per orang</td><td class="text-end fw-bold text-success">Rp ${biayaPanggilan.toLocaleString('id-ID')}</td></tr>
+                        <tr><td>5. Pencabutan perkara</td><td class="text-end">Rp 10.000</td></tr>
+                        <tr><td>6. Biaya redaksi (HHK E2)</td><td class="text-end">Rp 10.000</td></tr>
+                        <tr><td>7. Biaya materai</td><td class="text-end">Rp 10.000</td></tr>`;
+                }
+            }
+            break;
 
         // ==========================================
-        // PENINJAUAN KEMBALI (DARI INDEX.HTML BARU)
+        // LAINNYA (Gugatan Sederhana, PK, dsb)
         // ==========================================
+        case 'gugatan_sederhana':
+            let isGSEcourt = document.getElementById('gsEcourt') ? document.getElementById('gsEcourt').checked : false;
+            let existP_GS = false, existT_GS = false, radiusP_GS = 0, radiusT_GS = 0, isGhoibGS = false;
+
+            for (let p of dataPihak) {
+                let currentRadius = (document.getElementById('gsManual').checked && p.lokasi === 'DN') ? (p.isRadius1 ? 200000 : 250000) : p.radius;
+                if (p.jenis === 'Penggugat') { existP_GS = true; radiusP_GS += currentRadius; }
+                if (p.jenis === 'Tergugat' || p.jenis === 'Turut Tergugat') {
+                    existT_GS = true; if (p.lokasi === 'GHOIB') isGhoibGS = true; else radiusT_GS += currentRadius;
+                }
+            }
+            
+            if (!existP_GS || !existT_GS) { alert("Perhatian: Anda harus mengisi minimal 1 data Penggugat dan 1 data Tergugat!"); return; }
+
+            if (isGSEcourt) {
+                grandTotal = 380000;
+                htmlDetail = `
+                    <tr><td colspan="2" class="fw-bold bg-light">GUGATAN SEDERHANA E-COURT</td></tr>
+                    <tr><td>1. Biaya pendaftaran (HHK C2)</td><td class="text-end">Rp 30.000</td></tr>
+                    <tr><td>2. Biaya Proses Perkara (ATK Perkara)</td><td class="text-end">Rp 150.000</td></tr>
+                    <tr><td>3. PNBP Panggilan pertama Penggugat, Tergugat dan PBT</td><td class="text-end">Rp 30.000</td></tr>
+                    <tr><td>4. Biaya Panggilan Penggugat 2x dan Tergugat 6x</td><td class="text-end fw-bold text-success">Rp 120.000</td></tr>
+                    <tr><td>5. Biaya redaksi (HHK E2)</td><td class="text-end">Rp 10.000</td></tr>
+                    <tr><td>6. Biaya materai</td><td class="text-end">Rp 10.000</td></tr>
+                    <tr><td>7. Pencabutan perkara</td><td class="text-end">Rp 10.000</td></tr>
+                    <tr><td>8. Pemberitahuan isi putusan</td><td class="text-end">Rp 20.000</td></tr>`;
+            } else {
+                let totalPangGS = (radiusP_GS * 2) + (isGhoibGS ? 630000 : (radiusT_GS * 3));
+                let bPBT_GS = isGhoibGS ? 270000 : (radiusT_GS * 1);
+                grandTotal = pendaftaran + atk + 30000 + totalPangGS + redaksi + materai + 10000 + bPBT_GS;
+                htmlDetail = `
+                    <tr><td colspan="2" class="fw-bold bg-light">V. PANJAR BIAYA PERKARA GUGATAN SEDERHANA (MANUAL)</td></tr>
+                    <tr><td>1. Biaya pendaftaran (HHK C2)</td><td class="text-end">Rp 30.000</td></tr>
+                    <tr><td>2. Biaya Proses Perkara (ATK Perkara)</td><td class="text-end">Rp 150.000</td></tr>
+                    <tr><td>3. PNBP Panggilan pertama Penggugat, Tergugat dan PBT</td><td class="text-end">Rp 30.000</td></tr>
+                    <tr><td>4. Biaya panggilan Penggugat & Tergugat</td><td class="text-end fw-bold text-success">Rp ${totalPangGS.toLocaleString('id-ID')}</td></tr>
+                    <tr><td>5. Biaya redaksi (HHK E2)</td><td class="text-end">Rp 10.000</td></tr>
+                    <tr><td>6. Biaya materai</td><td class="text-end">Rp 10.000</td></tr>
+                    <tr><td>7. Pencabutan perkara</td><td class="text-end">Rp 10.000</td></tr>
+                    <tr><td>8. Pemberitahuan isi putusan</td><td class="text-end fw-bold text-success">Rp ${bPBT_GS.toLocaleString('id-ID')}</td></tr>`;
+            }
+            break;
+
+        case 'verzet':
+            let isVerzetEcourt = document.getElementById('verzetEcourt') ? document.getElementById('verzetEcourt').checked : false;
+            let existPelawan = false, existTerlawan = false, radiusPelawan = 0, radiusTerlawan = 0, isGhoibVerzet = false;
+
+            for (let p of dataPihak) {
+                let currentRadius = (document.getElementById('verzetManual').checked && p.lokasi === 'DN') ? (p.isRadius1 ? 200000 : 250000) : p.radius;
+                if (p.jenis === 'Pelawan') { existPelawan = true; radiusPelawan += currentRadius; }
+                if (p.jenis === 'Terlawan' || p.jenis === 'Turut Terlawan') {
+                    existTerlawan = true; if (p.lokasi === 'GHOIB') isGhoibVerzet = true; else radiusTerlawan += currentRadius;
+                }
+            }
+
+            if (!existPelawan || !existTerlawan) { alert("Perhatian: Harap masukkan data Pelawan dan Terlawan!"); return; }
+
+            if (isVerzetEcourt) {
+                grandTotal = 310000;
+                htmlDetail = `
+                    <tr><td colspan="2" class="fw-bold bg-light">VERZET E-COURT</td></tr>
+                    <tr><td>1. Biaya pendaftaran (HHK C2)</td><td class="text-end">Rp 30.000</td></tr>
+                    <tr><td>2. Biaya Proses Perkara (ATK Perkara)</td><td class="text-end">Rp 150.000</td></tr>
+                    <tr><td>3. PNBP Panggilan pertama Pelawan, Terlawan dan PBT</td><td class="text-end">Rp 30.000</td></tr>
+                    <tr><td>4. Biaya Panggilan Terlawan 3 X</td><td class="text-end fw-bold text-success">Rp 60.000</td></tr>
+                    <tr><td>5. Biaya materai</td><td class="text-end">Rp 10.000</td></tr>
+                    <tr><td>6. Biaya redaksi (HHK E2)</td><td class="text-end">Rp 10.000</td></tr>
+                    <tr><td>7. Pemberitahuan isi putusan</td><td class="text-end">Rp 20.000</td></tr>`;
+            } else {
+                let totalPangVerzet = (radiusPelawan * 2) + (isGhoibVerzet ? 630000 : (radiusTerlawan * 2));
+                let bPBTVerzet = isGhoibVerzet ? 270000 : (radiusTerlawan * 1);
+                grandTotal = pendaftaran + atk + 30000 + totalPangVerzet + materai + redaksi + bPBTVerzet;
+                htmlDetail = `
+                    <tr><td colspan="2" class="fw-bold bg-light">III. PANJAR BIAYA PERKARA VERZET (MANUAL)</td></tr>
+                    <tr><td>1. Biaya pendaftaran (HHK C2)</td><td class="text-end">Rp 30.000</td></tr>
+                    <tr><td>2. Biaya Proses Perkara (ATK Perkara)</td><td class="text-end">Rp 150.000</td></tr>
+                    <tr><td>3. PNBP Panggilan pertama Pelawan, Terlawan dan PBT</td><td class="text-end">Rp 30.000</td></tr>
+                    <tr><td>4. Biaya Panggilan Pelawan & Terlawan</td><td class="text-end fw-bold text-success">Rp ${totalPangVerzet.toLocaleString('id-ID')}</td></tr>
+                    <tr><td>5. Biaya materai</td><td class="text-end">Rp 10.000</td></tr>
+                    <tr><td>6. Biaya redaksi (HHK E2)</td><td class="text-end">Rp 10.000</td></tr>
+                    <tr><td>7. Pemberitahuan isi putusan</td><td class="text-end fw-bold text-success">Rp ${bPBTVerzet.toLocaleString('id-ID')}</td></tr>`;
+            }
+            break;
+
         case 'pk':
             let isPKEcourt = document.getElementById('pkEcourt').checked;
-            let hasPemohonPK = dataPihak.some(p => p.jenis === 'Pemohon PK');
-            let hasTermohonPK = dataPihak.some(p => p.jenis === 'Termohon PK');
+            let hasPemohonPK = dataPihak.some(p => p.jenis === 'Pemohon PK'), hasTermohonPK = dataPihak.some(p => p.jenis === 'Termohon PK');
             if (!hasPemohonPK || !hasTermohonPK) { alert("Harap masukkan data Pemohon PK dan Termohon PK!"); return; }
 
             if (isPKEcourt) {
@@ -979,451 +1207,17 @@ function hitungEstimasi() {
             }
             break;
 
-        // ==========================================
-        // GUGATAN (BEFORE2INDEX + LUAR NEGERI BARU)
-        // ==========================================
-        case 'gugatan':
-            let isGugatanEcourt = document.getElementById('gugatanEcourt') ? document.getElementById('gugatanEcourt').checked : false;
-            let isGugatanManual = document.getElementById('gugatanManual') ? document.getElementById('gugatanManual').checked : false;
-            let isCeraiTalak = document.getElementById('ceraiTalak') ? document.getElementById('ceraiTalak').checked : false;
-
-            let hasPenggugat = false;
-            let hasTergugat = false;
-            let biayaRadiusP = 0;
-            let biayaRadiusT = 0;
-            let isGhoib = false;
-            let isLuarNegeri = false; // Penanda khusus Luar Negeri
-
-            for (let p of dataPihak) {
-                let currentRadius = p.radius;
-                
-                if (isGugatanManual && p.lokasi === 'DN') {
-                    currentRadius = p.isRadius1 ? 200000 : 250000;
-                }
-
-                if (p.lokasi === 'LN') isLuarNegeri = true;
-
-                if (p.jenis === 'Penggugat') {
-                    hasPenggugat = true;
-                    biayaRadiusP += currentRadius;
-                }
-                if (p.jenis === 'Tergugat' || p.jenis === 'Turut Tergugat') {
-                    hasTergugat = true;
-                    if (p.lokasi === 'GHOIB') {
-                        isGhoib = true;
-                    } else {
-                        biayaRadiusT += currentRadius; 
-                    }
-                }
-            }
-
-            if (!hasPenggugat || !hasTergugat) {
-                alert("Perhatian: Anda harus mengisi minimal 1 data Penggugat/Pemohon dan 1 data Tergugat/Termohon!"); return;
-            }
-
-            if (isGugatanEcourt) {
-                // LOGIKA LUAR NEGERI YANG PRESISI (Sesuai e-SKUM Rp 5.468.000)
-                if (isLuarNegeri) {
-                    const pnbpRelaasGugatan = 20000 * jumlahData; 
-                    const mediasi = 40000;
-                    const pemberitahuanT = 20000;
-                    const pnbpPutusanLN = 20000; // Sesuai e-SKUM (poin 11)
-                    const pnbpPencabutan = 10000;
-                    const registerKuasa = 10000;
-                    
-                    grandTotal = pendaftaran + atk + biayaRadiusT + pnbpRelaasGugatan + mediasi + redaksi + materai + pemberitahuanT + pnbpPutusanLN + pnbpPencabutan + registerKuasa;
-
-                    htmlDetail = `
-                        <tr><td colspan="2" class="fw-bold bg-light">GUGATAN E-COURT (LUAR NEGERI)</td></tr>
-                        <tr><td>1. Pendaftaran</td><td class="text-end">Rp 30.000</td></tr>
-                        <tr><td>2. Biaya Proses / ATK Perkara</td><td class="text-end">Rp 150.000</td></tr>
-                        <tr><td>3. Panggilan Penggugat/Pemohon</td><td class="text-end">Rp 0</td></tr>
-                        <tr><td>4. Biaya relaas Panggilan T melalui surat tercatat</td><td class="text-end fw-bold text-success">Rp ${biayaRadiusT.toLocaleString('id-ID')}</td></tr>
-                        <tr><td>5. PNBP Relaas Panggilan Pertama P dan T</td><td class="text-end">Rp ${pnbpRelaasGugatan.toLocaleString('id-ID')}</td></tr>
-                        <tr><td>6. Biaya panggilan mediasi</td><td class="text-end">Rp 40.000</td></tr>
-                        <tr><td>7. Biaya Sidang secara audiovisual</td><td class="text-end">Rp 0</td></tr>
-                        <tr><td>8. Redaksi</td><td class="text-end">Rp 10.000</td></tr>
-                        <tr><td>9. Materai</td><td class="text-end">Rp 10.000</td></tr>
-                        <tr><td>10. Pemberitahuan isi putusan T melalui surat tercatat</td><td class="text-end">Rp 20.000</td></tr>
-                        <tr><td>11. PNBP untuk Pemberitahuan Isi Putusan T</td><td class="text-end">Rp 20.000</td></tr>
-                        <tr><td>12. PNBP Pencabutan perkara</td><td class="text-end">Rp 10.000</td></tr>
-                        <tr><td>13. Register Surat Kuasa</td><td class="text-end">Rp 10.000</td></tr>
-                    `;
-                } 
-                // LOGIKA GHOIB
-                else if (isGhoib) {
-                    const pnbpRelaasGugatan = 20000 * jumlahData; 
-                    const mediasi = 40000;
-                    const pemberitahuanT = 20000;
-                    const pnbpPutusan = 10000 * jumlahData;
-                    const pnbpPencabutan = 10000;
-                    const registerKuasa = 10000;
-
-                    const panggilanMassmedia = 630000; 
-                    const pemberitahuanMassmedia = 270000;
-                    
-                    grandTotal = pendaftaran + atk + pnbpRelaasGugatan + mediasi + redaksi + materai + pemberitahuanT + pnbpPutusan + pnbpPencabutan + registerKuasa + panggilanMassmedia + pemberitahuanMassmedia;
-
-                    htmlDetail = `
-                        <tr><td colspan="2" class="fw-bold bg-light">GUGATAN E-COURT (GHOIB)</td></tr>
-                        <tr><td>1. Pendaftaran</td><td class="text-end">Rp 30.000</td></tr>
-                        <tr><td>2. Biaya Proses / ATK Perkara</td><td class="text-end">Rp 150.000</td></tr>
-                        <tr><td>3. Panggilan Penggugat/Pemohon</td><td class="text-end">Rp 0</td></tr>
-                        <tr><td>4. Biaya relaas Panggilan T melalui surat tercatat 3x @20rb</td><td class="text-end">Rp 0</td></tr>
-                        <tr><td>5. PNBP Relaas Panggilan Pertama P dan T (${jumlahData} Pihak)</td><td class="text-end">Rp ${pnbpRelaasGugatan.toLocaleString('id-ID')}</td></tr>
-                        <tr><td>6. Biaya relaas Panggilan T melalui Massmedia 2x @315rb</td><td class="text-end fw-bold text-success">Rp ${panggilanMassmedia.toLocaleString('id-ID')}</td></tr>
-                        <tr><td>7. Biaya panggilan mediasi</td><td class="text-end">Rp 40.000</td></tr>
-                        <tr><td>8. Biaya Sidang secara audiovisual</td><td class="text-end">Rp 0</td></tr>
-                        <tr><td>9. Redaksi</td><td class="text-end">Rp 10.000</td></tr>
-                        <tr><td>10. Materai</td><td class="text-end">Rp 10.000</td></tr>
-                        <tr><td>11. Pemberitahuan isi putusan T melalui surat tercatat</td><td class="text-end">Rp 20.000</td></tr>
-                        <tr><td>12. PNBP untuk Pemberitahuan Isi Putusan T (${jumlahData} Pihak)</td><td class="text-end">Rp ${pnbpPutusan.toLocaleString('id-ID')}</td></tr>
-                        <tr><td>13. PNBP Pencabutan perkara</td><td class="text-end">Rp 10.000</td></tr>
-                        <tr><td>14. Register Surat Kuasa</td><td class="text-end">Rp 10.000</td></tr>
-                        <tr><td>15. Pemberitahuan isi putusan T melalui Massmedia</td><td class="text-end fw-bold text-success">Rp ${pemberitahuanMassmedia.toLocaleString('id-ID')}</td></tr>
-                    `;
-                } 
-                // LOGIKA DOMESTIK BIASA
-                else {
-                    const pnbpRelaasGugatan = 20000 * jumlahData; 
-                    const mediasi = 40000;
-                    const pemberitahuanT = 20000;
-                    const pnbpPutusan = 10000 * jumlahData;
-                    const pnbpPencabutan = 10000;
-                    const registerKuasa = 10000;
-
-                    grandTotal = pendaftaran + atk + biayaRadiusT + pnbpRelaasGugatan + mediasi + redaksi + materai + pemberitahuanT + pnbpPutusan + pnbpPencabutan + registerKuasa;
-
-                    htmlDetail = `
-                        <tr><td colspan="2" class="fw-bold bg-light">GUGATAN E-COURT</td></tr>
-                        <tr><td>1. Pendaftaran</td><td class="text-end">Rp 30.000</td></tr>
-                        <tr><td>2. Biaya Proses / ATK Perkara</td><td class="text-end">Rp 150.000</td></tr>
-                        <tr><td>3. Panggilan Penggugat/Pemohon</td><td class="text-end">Rp 0</td></tr>
-                        <tr><td>4. Biaya relaas Panggilan T melalui surat tercatat</td><td class="text-end fw-bold text-success">Rp ${biayaRadiusT.toLocaleString('id-ID')}</td></tr>
-                        <tr><td>5. PNBP Relaas Panggilan Pertama P dan T (${jumlahData} Pihak)</td><td class="text-end">Rp ${pnbpRelaasGugatan.toLocaleString('id-ID')}</td></tr>
-                        <tr><td>6. Biaya panggilan mediasi</td><td class="text-end">Rp 40.000</td></tr>
-                        <tr><td>7. Biaya Sidang secara audiovisual</td><td class="text-end">Rp 0</td></tr>
-                        <tr><td>8. Redaksi</td><td class="text-end">Rp 10.000</td></tr>
-                        <tr><td>9. Materai</td><td class="text-end">Rp 10.000</td></tr>
-                        <tr><td>10. Pemberitahuan isi putusan T melalui surat tercatat</td><td class="text-end">Rp 20.000</td></tr>
-                        <tr><td>11. PNBP untuk Pemberitahuan Isi Putusan T (${jumlahData} Pihak)</td><td class="text-end">Rp ${pnbpPutusan.toLocaleString('id-ID')}</td></tr>
-                        <tr><td>12. PNBP Pencabutan perkara</td><td class="text-end">Rp 10.000</td></tr>
-                        <tr><td>13. Register Surat Kuasa</td><td class="text-end">Rp 10.000</td></tr>
-                    `;
-                }
-            } else if (isGugatanManual) {
-                const pnbpPanggilan = 30000;
-                let bPanggilanP = biayaRadiusP * 2;
-                let bPanggilanT = isGhoib ? 630000 : (biayaRadiusT * 3);
-                let totalPanggilan = bPanggilanP + bPanggilanT;
-                let bPemberitahuan = isGhoib ? 270000 : (biayaRadiusT * 1);
-
-                if (isCeraiTalak) {
-                    let bIkrar = (biayaRadiusP * 1) + (isGhoib ? 315000 : (biayaRadiusT * 1));
-                    grandTotal = pendaftaran + atk + pnbpPanggilan + totalPanggilan + redaksi + materai + 10000 + bPemberitahuan + bIkrar;
-
-                    let barisPanggilan = isGhoib 
-                        ? `<tr><td>4a. Biaya Panggilan Pemohon 2x</td><td class="text-end fw-bold text-success">Rp ${bPanggilanP.toLocaleString('id-ID')}</td></tr>
-                           <tr><td>4b. Biaya relaas Panggilan T melalui Massmedia 2x @315rb</td><td class="text-end fw-bold text-success">Rp 630.000</td></tr>`
-                        : `<tr><td>4. Biaya panggilan Pemohon 2x dan Termohon 3x</td><td class="text-end fw-bold text-success">Rp ${totalPanggilan.toLocaleString('id-ID')}</td></tr>`;
-
-                    let barisPemberitahuan = isGhoib
-                        ? `<tr><td>8. Pemberitahuan isi putusan T melalui Massmedia</td><td class="text-end fw-bold text-success">Rp 270.000</td></tr>`
-                        : `<tr><td>8. Pemberitahuan isi putusan</td><td class="text-end fw-bold text-success">Rp ${bPemberitahuan.toLocaleString('id-ID')}</td></tr>`;
-
-                    htmlDetail = `
-                        <tr><td colspan="2" class="fw-bold bg-light">A. CERAI TALAK (MANUAL)</td></tr>
-                        <tr><td>1. Biaya pendaftaran (HHK C2)</td><td class="text-end">Rp 30.000</td></tr>
-                        <tr><td>2. Biaya Proses Perkara (ATK Perkara)</td><td class="text-end">Rp 150.000</td></tr>
-                        <tr><td>3. PNBP Panggilan pertama Pemohon, Termohon dan PBT</td><td class="text-end">Rp ${pnbpPanggilan.toLocaleString('id-ID')}</td></tr>
-                        ${barisPanggilan}
-                        <tr><td>5. Biaya redaksi (HHK E2)</td><td class="text-end">Rp 10.000</td></tr>
-                        <tr><td>6. Biaya materai</td><td class="text-end">Rp 10.000</td></tr>
-                        <tr><td>7. Pencabutan perkara</td><td class="text-end">Rp 10.000</td></tr>
-                        ${barisPemberitahuan}
-                        <tr><td>9. Biaya panggilan Ikrar Pemohon dan Termohon</td><td class="text-end fw-bold text-success">Rp ${bIkrar.toLocaleString('id-ID')}</td></tr>
-                    `;
-                } else {
-                    grandTotal = pendaftaran + atk + pnbpPanggilan + totalPanggilan + redaksi + bPemberitahuan + 10000 + materai;
-
-                    let barisPanggilan = isGhoib 
-                        ? `<tr><td>4a. Biaya Panggilan Penggugat 2x</td><td class="text-end fw-bold text-success">Rp ${bPanggilanP.toLocaleString('id-ID')}</td></tr>
-                           <tr><td>4b. Biaya relaas Panggilan T melalui Massmedia 2x @315rb</td><td class="text-end fw-bold text-success">Rp 630.000</td></tr>`
-                        : `<tr><td>4. Biaya panggilan Penggugat 2x dan Tergugat 3x</td><td class="text-end fw-bold text-success">Rp ${totalPanggilan.toLocaleString('id-ID')}</td></tr>`;
-
-                    let barisPemberitahuan = isGhoib
-                        ? `<tr><td>6. Pemberitahuan isi putusan T melalui Massmedia</td><td class="text-end fw-bold text-success">Rp 270.000</td></tr>`
-                        : `<tr><td>6. Pemberitahuan isi putusan</td><td class="text-end fw-bold text-success">Rp ${bPemberitahuan.toLocaleString('id-ID')}</td></tr>`;
-
-                    htmlDetail = `
-                        <tr><td colspan="2" class="fw-bold bg-light">A. CERAI GUGAT / GUGATAN LAINNYA (MANUAL)</td></tr>
-                        <tr><td>1. Biaya pendaftaran (HHK C2)</td><td class="text-end">Rp 30.000</td></tr>
-                        <tr><td>2. Biaya Proses Perkara (ATK Perkara)</td><td class="text-end">Rp 150.000</td></tr>
-                        <tr><td>3. PNBP Panggilan pertama Penggugat, Tergugat dan PBT</td><td class="text-end">Rp ${pnbpPanggilan.toLocaleString('id-ID')}</td></tr>
-                        ${barisPanggilan}
-                        <tr><td>5. Biaya redaksi (HHK E2)</td><td class="text-end">Rp 10.000</td></tr>
-                        ${barisPemberitahuan}
-                        <tr><td>7. Pencabutan perkara</td><td class="text-end">Rp 10.000</td></tr>
-                        <tr><td>8. Biaya materai</td><td class="text-end">Rp 10.000</td></tr>
-                    `;
-                }
-            }
-            break;
-
-        // ==========================================
-        // PERMOHONAN (UTUH DARI BEFORE2INDEX)
-        // ==========================================
-        case 'permohonan':
-            let isPermohonanEcourt = document.getElementById('permohonanEcourt') ? document.getElementById('permohonanEcourt').checked : false;
-            let isPermohonanManual = document.getElementById('permohonanManual') ? document.getElementById('permohonanManual').checked : false;
-
-            let jumlahPemohon = 0;
-            let biayaRadiusPemohon = 0;
-
-            for (let p of dataPihak) {
-                if (p.jenis === 'Pemohon') {
-                    jumlahPemohon++;
-                    let currentRadius = p.radius;
-                    if (isPermohonanManual && p.lokasi === 'DN') {
-                        currentRadius = p.isRadius1 ? 200000 : 250000;
-                    }
-                    biayaRadiusPemohon += currentRadius;
-                }
-            }
-
-            if (jumlahPemohon === 0) {
-                alert("Perhatian: Anda harus mengisi minimal 1 data Pemohon!"); return;
-            }
-
-            if (isPermohonanEcourt) {
-                const pnbpRelaasPermohonan = 20000 * jumlahData; 
-                grandTotal = 30000 + 150000 + 10000 + 10000 + pnbpRelaasPermohonan + 10000 + 10000 + 20000;
-                htmlDetail = `
-                    <tr><td colspan="2" class="fw-bold bg-light">PERMOHONAN E-COURT</td></tr>
-                    <tr><td>1. Pendaftaran</td><td class="text-end">Rp 30.000</td></tr>
-                    <tr><td>2. Biaya Proses / ATK Perkara</td><td class="text-end">Rp 150.000</td></tr>
-                    <tr><td>3. Redaksi</td><td class="text-end">Rp 10.000</td></tr>
-                    <tr><td>4. Materai</td><td class="text-end">Rp 10.000</td></tr>
-                    <tr><td>5. Panggilan Pemohon</td><td class="text-end">Rp 0</td></tr>
-                    <tr><td>6. PNBP Relaas Panggilan Pertama Pemohon (${jumlahData} Pihak)</td><td class="text-end">Rp ${pnbpRelaasPermohonan.toLocaleString('id-ID')}</td></tr>
-                    <tr><td>7. Register Surat Kuasa</td><td class="text-end">Rp 10.000</td></tr>
-                    <tr><td>8. PNBP Pencabutan perkara</td><td class="text-end">Rp 10.000</td></tr>
-                    <tr><td>9. Biaya Sidang secara audiovisual</td><td class="text-end">Rp 0</td></tr>
-                    <tr><td>10. Pemberitahuan Isi Putusan Via Surat Tercatat</td><td class="text-end">Rp 20.000</td></tr>
-                `;
-            } else if (isPermohonanManual) {
-                let biayaPanggilan = biayaRadiusPemohon * 2; 
-                let pnbpPanggilan = 10000 * jumlahPemohon;   
-
-                if (jumlahPemohon === 1) {
-                    grandTotal = pendaftaran + atk + pnbpPanggilan + biayaPanggilan + redaksi + materai;
-                    htmlDetail = `
-                        <tr><td colspan="2" class="fw-bold bg-light">B. PEMOHON 1 (MANUAL)</td></tr>
-                        <tr><td>1. Biaya pendaftaran (HHK C2)</td><td class="text-end">Rp 30.000</td></tr>
-                        <tr><td>2. Biaya Proses Perkara (ATK Perkara)</td><td class="text-end">Rp 150.000</td></tr>
-                        <tr><td>3. PNBP Panggilan Pemohon</td><td class="text-end">Rp ${pnbpPanggilan.toLocaleString('id-ID')}</td></tr>
-                        <tr><td>4. Biaya Panggilan Pemohon 2x</td><td class="text-end fw-bold text-success">Rp ${biayaPanggilan.toLocaleString('id-ID')}</td></tr>
-                        <tr><td>5. Biaya redaksi (HHK E2)</td><td class="text-end">Rp 10.000</td></tr>
-                        <tr><td>6. Biaya materai</td><td class="text-end">Rp 10.000</td></tr>
-                    `;
-                } else {
-                    let pencabutan = 10000;
-                    grandTotal = pendaftaran + atk + pnbpPanggilan + biayaPanggilan + pencabutan + redaksi + materai;
-                    htmlDetail = `
-                        <tr><td colspan="2" class="fw-bold bg-light">A. PEMOHON LEBIH DARI 1 (MANUAL)</td></tr>
-                        <tr><td>1. Biaya pendaftaran (HHK C2)</td><td class="text-end">Rp 30.000</td></tr>
-                        <tr><td>2. Biaya Proses Perkara (ATK Perkara)</td><td class="text-end">Rp 150.000</td></tr>
-                        <tr><td>3. PNBP panggilan Pemohon</td><td class="text-end">Rp ${pnbpPanggilan.toLocaleString('id-ID')}</td></tr>
-                        <tr><td>4. Biaya Panggilan Pemohon 2x per orang</td><td class="text-end fw-bold text-success">Rp ${biayaPanggilan.toLocaleString('id-ID')}</td></tr>
-                        <tr><td>5. Pencabutan perkara</td><td class="text-end">Rp 10.000</td></tr>
-                        <tr><td>6. Biaya redaksi (HHK E2)</td><td class="text-end">Rp 10.000</td></tr>
-                        <tr><td>7. Biaya materai</td><td class="text-end">Rp 10.000</td></tr>
-                    `;
-                }
-            }
-            break;
-
-        // ==========================================
-        // GUGATAN SEDERHANA (UTUH DARI BEFORE2INDEX)
-        // ==========================================
-        case 'gugatan_sederhana':
-            let isGSEcourt = document.getElementById('gsEcourt') ? document.getElementById('gsEcourt').checked : false;
-            let isGSManual = document.getElementById('gsManual') ? document.getElementById('gsManual').checked : false;
-
-            let existP_GS = false;
-            let existT_GS = false;
-            let radiusP_GS = 0;
-            let radiusT_GS = 0;
-            let isGhoibGS = false;
-
-            for (let p of dataPihak) {
-                let currentRadius = p.radius;
-                if (isGSManual && p.lokasi === 'DN') {
-                    currentRadius = p.isRadius1 ? 200000 : 250000;
-                }
-                
-                if (p.jenis === 'Penggugat') {
-                    existP_GS = true;
-                    radiusP_GS += currentRadius;
-                }
-                if (p.jenis === 'Tergugat' || p.jenis === 'Turut Tergugat') {
-                    existT_GS = true;
-                    if (p.lokasi === 'GHOIB') isGhoibGS = true;
-                    else radiusT_GS += currentRadius;
-                }
-            }
-            
-            if (!existP_GS || !existT_GS) {
-                alert("Perhatian: Anda harus mengisi minimal 1 data Penggugat dan 1 data Tergugat!"); return;
-            }
-
-            if (isGSEcourt) {
-                grandTotal = 380000;
-                const fixedCallsGS = 120000;
-
-                htmlDetail = `
-                    <tr><td colspan="2" class="fw-bold bg-light">GUGATAN SEDERHANA E-COURT</td></tr>
-                    <tr><td>1. Biaya pendaftaran (HHK C2)</td><td class="text-end">Rp 30.000</td></tr>
-                    <tr><td>2. Biaya Proses Perkara (ATK Perkara)</td><td class="text-end">Rp 150.000</td></tr>
-                    <tr><td>3. PNBP Panggilan pertama Penggugat, Tergugat dan PBT</td><td class="text-end">Rp 30.000</td></tr>
-                    <tr><td>4. Biaya Panggilan Penggugat 2x dan Tergugat 6x</td><td class="text-end fw-bold text-success">Rp ${fixedCallsGS.toLocaleString('id-ID')}</td></tr>
-                    <tr><td>5. Biaya redaksi (HHK E2)</td><td class="text-end">Rp 10.000</td></tr>
-                    <tr><td>6. Biaya materai</td><td class="text-end">Rp 10.000</td></tr>
-                    <tr><td>7. Pencabutan perkara</td><td class="text-end">Rp 10.000</td></tr>
-                    <tr><td>8. Pemberitahuan isi putusan</td><td class="text-end">Rp 20.000</td></tr>
-                `;
-            } else if (isGSManual) {
-                let pnbpGS = 30000;
-                let bPanggilanP_GS = radiusP_GS * 2;
-                let bPanggilanT_GS = isGhoibGS ? 630000 : (radiusT_GS * 3);
-                let totalPangGS = bPanggilanP_GS + bPanggilanT_GS;
-                let bPBT_GS = isGhoibGS ? 270000 : (radiusT_GS * 1);
-
-                grandTotal = pendaftaran + atk + pnbpGS + totalPangGS + redaksi + materai + 10000 + bPBT_GS;
-
-                let rowPangGS = isGhoibGS
-                    ? `<tr><td>4a. Biaya Panggilan Penggugat 2x</td><td class="text-end fw-bold text-success">Rp ${bPanggilanP_GS.toLocaleString('id-ID')}</td></tr>
-                       <tr><td>4b. Biaya relaas Panggilan T melalui Massmedia 2x @315rb</td><td class="text-end fw-bold text-success">Rp 630.000</td></tr>`
-                    : `<tr><td>4. Biaya panggilan Penggugat 2x dan Tergugat 3x</td><td class="text-end fw-bold text-success">Rp ${totalPangGS.toLocaleString('id-ID')}</td></tr>`;
-
-                let rowPBT_GS = isGhoibGS
-                    ? `<tr><td>8. Pemberitahuan isi putusan T melalui Massmedia</td><td class="text-end fw-bold text-success">Rp 270.000</td></tr>`
-                    : `<tr><td>8. Pemberitahuan isi putusan</td><td class="text-end fw-bold text-success">Rp ${bPBT_GS.toLocaleString('id-ID')}</td></tr>`;
-
-                htmlDetail = `
-                    <tr><td colspan="2" class="fw-bold bg-light">V. PANJAR BIAYA PERKARA GUGATAN SEDERHANA (MANUAL)</td></tr>
-                    <tr><td>1. Biaya pendaftaran (HHK C2)</td><td class="text-end">Rp 30.000</td></tr>
-                    <tr><td>2. Biaya Proses Perkara (ATK Perkara)</td><td class="text-end">Rp 150.000</td></tr>
-                    <tr><td>3. PNBP Panggilan pertama Penggugat, Tergugat dan PBT</td><td class="text-end">Rp ${pnbpGS.toLocaleString('id-ID')}</td></tr>
-                    ${rowPangGS}
-                    <tr><td>5. Biaya redaksi (HHK E2)</td><td class="text-end">Rp 10.000</td></tr>
-                    <tr><td>6. Biaya materai</td><td class="text-end">Rp 10.000</td></tr>
-                    <tr><td>7. Pencabutan perkara</td><td class="text-end">Rp 10.000</td></tr>
-                    ${rowPBT_GS}
-                `;
-            }
-            break;
-
-        // ==========================================
-        // VERZET (UTUH DARI BEFORE2INDEX)
-        // ==========================================
-        case 'verzet':
-            let isVerzetEcourt = document.getElementById('verzetEcourt') ? document.getElementById('verzetEcourt').checked : false;
-            let isVerzetManual = document.getElementById('verzetManual') ? document.getElementById('verzetManual').checked : false;
-
-            let existPelawan = false;
-            let existTerlawan = false;
-            let radiusPelawan = 0;
-            let radiusTerlawan = 0;
-            let isGhoibVerzet = false;
-
-            for (let p of dataPihak) {
-                let currentRadius = p.radius;
-                if (isVerzetManual && p.lokasi === 'DN') {
-                    currentRadius = p.isRadius1 ? 200000 : 250000;
-                }
-
-                if (p.jenis === 'Pelawan') {
-                    existPelawan = true; 
-                    radiusPelawan += currentRadius;
-                }
-                if (p.jenis === 'Terlawan' || p.jenis === 'Turut Terlawan') {
-                    existTerlawan = true;
-                    if (p.lokasi === 'GHOIB') isGhoibVerzet = true;
-                    else radiusTerlawan += currentRadius;
-                }
-            }
-
-            if (!existPelawan || !existTerlawan) {
-                alert("Perhatian: Harap masukkan data Pelawan dan Terlawan!"); return;
-            }
-
-            if (isVerzetEcourt) {
-                grandTotal = 310000;
-                const fixedCallsVerzet = 60000;
-
-                htmlDetail = `
-                    <tr><td colspan="2" class="fw-bold bg-light">VERZET E-COURT</td></tr>
-                    <tr><td>1. Biaya pendaftaran (HHK C2)</td><td class="text-end">Rp 30.000</td></tr>
-                    <tr><td>2. Biaya Proses Perkara (ATK Perkara)</td><td class="text-end">Rp 150.000</td></tr>
-                    <tr><td>3. PNBP Panggilan pertama Pelawan, Terlawan dan PBT</td><td class="text-end">Rp 30.000</td></tr>
-                    <tr><td>4. Biaya Panggilan Terlawan 3 X</td><td class="text-end fw-bold text-success">Rp ${fixedCallsVerzet.toLocaleString('id-ID')}</td></tr>
-                    <tr><td>5. Biaya materai</td><td class="text-end">Rp 10.000</td></tr>
-                    <tr><td>6. Biaya redaksi (HHK E2)</td><td class="text-end">Rp 10.000</td></tr>
-                    <tr><td>7. Pemberitahuan isi putusan</td><td class="text-end">Rp 20.000</td></tr>
-                `;
-            } else if (isVerzetManual) {
-                let pnbpVerzet = 30000;
-                let bPanggilanPelawan = radiusPelawan * 2;
-                let bPanggilanTerlawan = isGhoibVerzet ? 630000 : (radiusTerlawan * 2);
-                let totalPangVerzet = bPanggilanPelawan + bPanggilanTerlawan;
-                let bPBTVerzet = isGhoibVerzet ? 270000 : (radiusTerlawan * 1);
-
-                grandTotal = pendaftaran + atk + pnbpVerzet + totalPangVerzet + materai + redaksi + bPBTVerzet;
-
-                let rowPangVerzet = isGhoibVerzet
-                    ? `<tr><td>4a. Biaya Panggilan Pelawan 2x</td><td class="text-end fw-bold text-success">Rp ${bPanggilanPelawan.toLocaleString('id-ID')}</td></tr>
-                       <tr><td>4b. Biaya relaas Panggilan Terlawan melalui Massmedia 2x @315rb</td><td class="text-end fw-bold text-success">Rp 630.000</td></tr>`
-                    : `<tr><td>4. Biaya Panggilan Pelawan 2x dan Terlawan 2x</td><td class="text-end fw-bold text-success">Rp ${totalPangVerzet.toLocaleString('id-ID')}</td></tr>`;
-
-                let rowPBTVerzet = isGhoibVerzet
-                    ? `<tr><td>7. Pemberitahuan isi putusan Terlawan melalui Massmedia</td><td class="text-end fw-bold text-success">Rp 270.000</td></tr>`
-                    : `<tr><td>7. Pemberitahuan isi putusan</td><td class="text-end fw-bold text-success">Rp ${bPBTVerzet.toLocaleString('id-ID')}</td></tr>`;
-
-                htmlDetail = `
-                    <tr><td colspan="2" class="fw-bold bg-light">III. PANJAR BIAYA PERKARA VERZET (MANUAL)</td></tr>
-                    <tr><td>1. Biaya pendaftaran (HHK C2)</td><td class="text-end">Rp 30.000</td></tr>
-                    <tr><td>2. Biaya Proses Perkara (ATK Perkara)</td><td class="text-end">Rp 150.000</td></tr>
-                    <tr><td>3. PNBP Panggilan pertama Pelawan, Terlawan dan PBT</td><td class="text-end">Rp ${pnbpVerzet.toLocaleString('id-ID')}</td></tr>
-                    ${rowPangVerzet}
-                    <tr><td>5. Biaya materai</td><td class="text-end">Rp 10.000</td></tr>
-                    <tr><td>6. Biaya redaksi (HHK E2)</td><td class="text-end">Rp 10.000</td></tr>
-                    ${rowPBTVerzet}
-                `;
-            }
-            break;
-
-        // ==========================================
-        // KASASI (UTUH DARI BEFORE2INDEX)
-        // ==========================================
         case 'kasasi':
             let isKasasiEcourt = document.getElementById('kasasiEcourt').checked;
-            
-            let hasPemohonK = false;
-            let hasTermohonK = false;
-            let allKasasiRadius1 = true; 
+            let hasPemohonK = false, hasTermohonK = false, allKasasiRadius1 = true; 
 
             for (let p of dataPihak) {
                 if (p.jenis === 'Pemohon Kasasi') hasPemohonK = true;
                 if (p.jenis === 'Termohon Kasasi') hasTermohonK = true;
-                if (p.lokasi === 'LN' || p.isRadius1 === false) {
-                    allKasasiRadius1 = false;
-                }
+                if (p.lokasi === 'LN' || p.isRadius1 === false) allKasasiRadius1 = false;
             }
 
-            if (!hasPemohonK || !hasTermohonK) {
-                alert("Perhatian: Harap masukkan data Pemohon Kasasi dan Termohon Kasasi!"); return;
-            }
+            if (!hasPemohonK || !hasTermohonK) { alert("Perhatian: Harap masukkan data Pemohon Kasasi dan Termohon Kasasi!"); return; }
 
             if (isKasasiEcourt) {
                 grandTotal = 600000;
@@ -1438,21 +1232,13 @@ function hitungEstimasi() {
                     <tr><td>7. PNBP penyampaian kontra memori</td><td class="text-end">Rp 10.000</td></tr>
                     <tr><td>8. Biaya yang dikirim ke Mahkamah Agung</td><td class="text-end">Rp 400.000</td></tr>
                     <tr><td>9. Biaya penyampaian isi putusan kasasi P & T</td><td class="text-end">Rp 40.000</td></tr>
-                    <tr><td>10. PNBP penyampaian isi putusan kasasi P & T</td><td class="text-end">Rp 20.000</td></tr>
-                `;
+                    <tr><td>10. PNBP penyampaian isi putusan kasasi P & T</td><td class="text-end">Rp 20.000</td></tr>`;
             } else {
-                let isKRadius2 = !allKasasiRadius1;
-                
-                let b_pbt_kasasi = isKRadius2 ? 250000 : 200000;
-                let b_memori_k = isKRadius2 ? 250000 : 200000;
-                let b_kontra_k = isKRadius2 ? 250000 : 200000;
-                let b_kirim_ma = 500000;
-                let b_putusan_k = isKRadius2 ? 500000 : 400000; 
-                
-                grandTotal = 50000 + b_pbt_kasasi + 10000 + b_memori_k + 10000 + b_kontra_k + 10000 + b_kirim_ma + b_putusan_k + 20000;
-
+                let b_pbt_kasasi = allKasasiRadius1 ? 200000 : 250000, b_memori_k = allKasasiRadius1 ? 200000 : 250000;
+                let b_kontra_k = allKasasiRadius1 ? 200000 : 250000, b_putusan_k = allKasasiRadius1 ? 400000 : 500000; 
+                grandTotal = 50000 + b_pbt_kasasi + 10000 + b_memori_k + 10000 + b_kontra_k + 10000 + 500000 + b_putusan_k + 20000;
                 htmlDetail = `
-                    <tr><td colspan="2" class="fw-bold bg-light">X. PANJAR BIAYA KASASI MANUAL (${isKRadius2 ? 'RADIUS II' : 'RADIUS I'})</td></tr>
+                    <tr><td colspan="2" class="fw-bold bg-light">X. PANJAR BIAYA KASASI MANUAL (${allKasasiRadius1 ? 'RADIUS I' : 'RADIUS II'})</td></tr>
                     <tr><td>1. Biaya pendaftaran permohonan kasasi (HHK C2)</td><td class="text-end">Rp 50.000</td></tr>
                     <tr><td>2. Biaya pemberitahuan kasasi ke T</td><td class="text-end fw-bold text-success">Rp ${b_pbt_kasasi.toLocaleString('id-ID')}</td></tr>
                     <tr><td>3. PNBP pemberitahuan kasasi</td><td class="text-end">Rp 10.000</td></tr>
@@ -1462,33 +1248,23 @@ function hitungEstimasi() {
                     <tr><td>7. PNBP penyampaian kontra memori</td><td class="text-end">Rp 10.000</td></tr>
                     <tr><td>8. Biaya yang dikirim ke Mahkamah Agung</td><td class="text-end">Rp 500.000</td></tr>
                     <tr><td>9. Biaya penyampaian isi putusan kasasi P & T</td><td class="text-end fw-bold text-success">Rp ${b_putusan_k.toLocaleString('id-ID')}</td></tr>
-                    <tr><td>10. PNBP penyampaian isi putusan kasasi P & T</td><td class="text-end">Rp 20.000</td></tr>
-                `;
+                    <tr><td>10. PNBP penyampaian isi putusan kasasi P & T</td><td class="text-end">Rp 20.000</td></tr>`;
             }
             break;
 
-        // ==========================================
-        // BANDING (UTUH DARI BEFORE2INDEX)
-        // ==========================================
         case 'banding':
-            let isEcourt = document.getElementById('bandingEcourt').checked;
-            let hasPembanding = false;
-            let hasTerbanding = false;
-            let allRadius1 = true; 
+            let isBandingEcourt = document.getElementById('bandingEcourt').checked;
+            let hasPembanding = false, hasTerbanding = false, allBandingRadius1 = true; 
 
             for (let p of dataPihak) {
                 if (p.jenis === 'Pembanding') hasPembanding = true;
                 if (p.jenis === 'Terbanding') hasTerbanding = true;
-                if (p.lokasi === 'LN' || p.isRadius1 === false) {
-                    allRadius1 = false;
-                }
+                if (p.lokasi === 'LN' || p.isRadius1 === false) allBandingRadius1 = false;
             }
 
-            if (!hasPembanding || !hasTerbanding) {
-                alert("Perhatian: Harap masukkan data Pembanding dan Terbanding!"); return;
-            }
+            if (!hasPembanding || !hasTerbanding) { alert("Perhatian: Harap masukkan data Pembanding dan Terbanding!"); return; }
 
-            if (isEcourt) {
+            if (isBandingEcourt) {
                 grandTotal = 530000;
                 htmlDetail = `
                     <tr><td colspan="2" class="fw-bold bg-light">IX. PANJAR BIAYA BANDING E-COURT</td></tr>
@@ -1507,28 +1283,22 @@ function hitungEstimasi() {
                     <tr><td>13. PNBP penyampaian isi putusan sela ke P & T</td><td class="text-end">Rp 20.000</td></tr>
                     <tr><td>14. Biaya pengiriman berkas</td><td class="text-end">Rp 50.000</td></tr>
                     <tr><td>15. Biaya penyampaian isi putusan banding P & T</td><td class="text-end">Rp 40.000</td></tr>
-                    <tr><td>16. PNBP penyampaian isi putusan banding P & T</td><td class="text-end">Rp 20.000</td></tr>
-                `;
+                    <tr><td>16. PNBP penyampaian isi putusan banding P & T</td><td class="text-end">Rp 20.000</td></tr>`;
             } else {
-                let isRadius2 = !allRadius1;
-                let b_pbt_banding = isRadius2 ? 250000 : 200000;
-                let b_memori = isRadius2 ? 250000 : 200000;
-                let b_kontra = isRadius2 ? 250000 : 200000;
-                let b_inzage = isRadius2 ? 500000 : 400000; 
-                let b_sela = isRadius2 ? 500000 : 400000; 
-                let b_putusan = isRadius2 ? 500000 : 400000; 
+                let b_pbt_banding = allBandingRadius1 ? 200000 : 250000, b_memori_b = allBandingRadius1 ? 200000 : 250000;
+                let b_kontra_b = allBandingRadius1 ? 200000 : 250000, b_inzage = allBandingRadius1 ? 400000 : 500000; 
+                let b_sela = allBandingRadius1 ? 400000 : 500000, b_putusan_b = allBandingRadius1 ? 400000 : 500000; 
                 
-                grandTotal = 50000 + 10000 + b_pbt_banding + 10000 + b_memori + 10000 + b_kontra + 10000 + b_inzage + 20000 + 150000 + b_sela + 20000 + 50000 + b_putusan + 20000;
-
+                grandTotal = 50000 + 10000 + b_pbt_banding + 10000 + b_memori_b + 10000 + b_kontra_b + 10000 + b_inzage + 20000 + 150000 + b_sela + 20000 + 50000 + b_putusan_b + 20000;
                 htmlDetail = `
-                    <tr><td colspan="2" class="fw-bold bg-light">VIII. PANJAR BIAYA BANDING MANUAL (${isRadius2 ? 'RADIUS II' : 'RADIUS I'})</td></tr>
+                    <tr><td colspan="2" class="fw-bold bg-light">VIII. PANJAR BIAYA BANDING MANUAL (${allBandingRadius1 ? 'RADIUS I' : 'RADIUS II'})</td></tr>
                     <tr><td>1. Biaya pendaftaran permohonan banding (HHK)</td><td class="text-end">Rp 50.000</td></tr>
                     <tr><td>2. PNBP Pendaftaran banding</td><td class="text-end">Rp 10.000</td></tr>
                     <tr><td>3. Biaya pemberitahuan banding ke Terbanding</td><td class="text-end fw-bold text-success">Rp ${b_pbt_banding.toLocaleString('id-ID')}</td></tr>
                     <tr><td>4. PNBP pemberitahuan banding</td><td class="text-end">Rp 10.000</td></tr>
-                    <tr><td>5. Biaya penyampaian memori banding ke Terbanding</td><td class="text-end fw-bold text-success">Rp ${b_memori.toLocaleString('id-ID')}</td></tr>
+                    <tr><td>5. Biaya penyampaian memori banding ke Terbanding</td><td class="text-end fw-bold text-success">Rp ${b_memori_b.toLocaleString('id-ID')}</td></tr>
                     <tr><td>6. PNBP penyampaian memori banding</td><td class="text-end">Rp 10.000</td></tr>
-                    <tr><td>7. Biaya penyampaian kontra memori banding ke P</td><td class="text-end fw-bold text-success">Rp ${b_kontra.toLocaleString('id-ID')}</td></tr>
+                    <tr><td>7. Biaya penyampaian kontra memori banding ke P</td><td class="text-end fw-bold text-success">Rp ${b_kontra_b.toLocaleString('id-ID')}</td></tr>
                     <tr><td>8. PNBP penyampaian kontra memori</td><td class="text-end">Rp 10.000</td></tr>
                     <tr><td>9. Biaya pemberitahuan inzage ke P & T</td><td class="text-end fw-bold text-success">Rp ${b_inzage.toLocaleString('id-ID')}</td></tr>
                     <tr><td>10. PNBP Inzage P & T</td><td class="text-end">Rp 20.000</td></tr>
@@ -1536,121 +1306,59 @@ function hitungEstimasi() {
                     <tr><td>12. Biaya penyampaian isi putusan sela ke P & T</td><td class="text-end fw-bold text-success">Rp ${b_sela.toLocaleString('id-ID')}</td></tr>
                     <tr><td>13. PNBP penyampaian isi putusan sela ke P & T</td><td class="text-end">Rp 20.000</td></tr>
                     <tr><td>14. Biaya pengiriman berkas</td><td class="text-end">Rp 50.000</td></tr>
-                    <tr><td>15. Biaya penyampaian isi putusan banding P & T</td><td class="text-end fw-bold text-success">Rp ${b_putusan.toLocaleString('id-ID')}</td></tr>
-                    <tr><td>16. PNBP penyampaian isi putusan banding P & T</td><td class="text-end">Rp 20.000</td></tr>
-                `;
+                    <tr><td>15. Biaya penyampaian isi putusan banding P & T</td><td class="text-end fw-bold text-success">Rp ${b_putusan_b.toLocaleString('id-ID')}</td></tr>
+                    <tr><td>16. PNBP penyampaian isi putusan banding P & T</td><td class="text-end">Rp 20.000</td></tr>`;
             }
             break;
 
-        // ==========================================
-        // KONSINYASI (UTUH DARI BEFORE2INDEX)
-        // ==========================================
         case 'konsinyasi':
-            let hasPemohonKons = false;
-            let hasTermohonKons = false;
-            let biayaPangPemohon = 0;
-            let biayaPangTermohon = 0;
-
+            let hasPemohonKons = false, hasTermohonKons = false, biayaPangPemohon = 0, biayaPangTermohon = 0;
             for (let p of dataPihak) {
-                if (p.jenis === 'Pemohon') {
-                    hasPemohonKons = true;
-                    biayaPangPemohon += p.isRadius1 ? 200000 : 250000;
-                }
-                if (p.jenis === 'Termohon') {
-                    hasTermohonKons = true;
-                    biayaPangTermohon += p.isRadius1 ? 400000 : 500000;
-                }
+                if (p.jenis === 'Pemohon') { hasPemohonKons = true; biayaPangPemohon += p.isRadius1 ? 200000 : 250000; }
+                if (p.jenis === 'Termohon') { hasTermohonKons = true; biayaPangTermohon += p.isRadius1 ? 400000 : 500000; }
             }
+            if (!hasPemohonKons || !hasTermohonKons) { alert("Perhatian: Anda harus mengisi minimal 1 data Pemohon dan 1 data Termohon!"); return; }
 
-            if (!hasPemohonKons || !hasTermohonKons) {
-                alert("Perhatian: Anda harus mengisi minimal 1 data Pemohon dan 1 data Termohon!"); return;
-            }
-
-            const pnbpDaftarKons = 30000;
-            const pnbpTetapKons = 10000;
-            const materai3Kons = 30000;
-            const upahJurusitaKons = 160000;
-            const upahSaksiKons = 320000;
-            const pnbpBAKons = 10000;
-            const baPenawaranKons = 10000;
-
-            grandTotal = pnbpDaftarKons + pnbpTetapKons + materai3Kons + upahJurusitaKons + upahSaksiKons + biayaPangPemohon + biayaPangTermohon + pnbpBAKons + baPenawaranKons;
-
+            grandTotal = 30000 + 10000 + 30000 + 160000 + 320000 + biayaPangPemohon + biayaPangTermohon + 10000 + 10000;
             htmlDetail = `
-                <tr><td>1. PNBP Pendaftaran</td><td class="text-end">Rp ${pnbpDaftarKons.toLocaleString('id-ID')}</td></tr>
-                <tr><td>2. PNBP Penetapan</td><td class="text-end">Rp ${pnbpTetapKons.toLocaleString('id-ID')}</td></tr>
-                <tr><td>3. Materei 3 lembar</td><td class="text-end">Rp ${materai3Kons.toLocaleString('id-ID')}</td></tr>
-                <tr><td>4. Upah Jurusita</td><td class="text-end">Rp ${upahJurusitaKons.toLocaleString('id-ID')}</td></tr>
-                <tr><td>5. Upah Saksi 2 orang</td><td class="text-end">Rp ${upahSaksiKons.toLocaleString('id-ID')}</td></tr>
-                <tr><td>6. Biaya Panggilan/pemberitahuan kepada Pemohon (1x)</td><td class="text-end fw-bold text-success">Rp ${biayaPangPemohon.toLocaleString('id-ID')}</td></tr>
-                <tr><td>7. Biaya Panggilan/pemberitahuan kepada Termohon (2x)</td><td class="text-end fw-bold text-success">Rp ${biayaPangTermohon.toLocaleString('id-ID')}</td></tr>
-                <tr><td>8. PNBP Berita Acara Konsinyasi</td><td class="text-end">Rp ${pnbpBAKons.toLocaleString('id-ID')}</td></tr>
-                <tr><td>9. Berita Acara Penawaran</td><td class="text-end">Rp ${baPenawaranKons.toLocaleString('id-ID')}</td></tr>
-            `;
+                <tr><td>1. PNBP Pendaftaran</td><td class="text-end">Rp 30.000</td></tr>
+                <tr><td>2. PNBP Penetapan</td><td class="text-end">Rp 10.000</td></tr>
+                <tr><td>3. Materei 3 lembar</td><td class="text-end">Rp 30.000</td></tr>
+                <tr><td>4. Upah Jurusita</td><td class="text-end">Rp 160.000</td></tr>
+                <tr><td>5. Upah Saksi 2 orang</td><td class="text-end">Rp 320.000</td></tr>
+                <tr><td>6. Biaya Panggilan kepada Pemohon (1x)</td><td class="text-end fw-bold text-success">Rp ${biayaPangPemohon.toLocaleString('id-ID')}</td></tr>
+                <tr><td>7. Biaya Panggilan kepada Termohon (2x)</td><td class="text-end fw-bold text-success">Rp ${biayaPangTermohon.toLocaleString('id-ID')}</td></tr>
+                <tr><td>8. PNBP Berita Acara Konsinyasi</td><td class="text-end">Rp 10.000</td></tr>
+                <tr><td>9. Berita Acara Penawaran</td><td class="text-end">Rp 10.000</td></tr>`;
             break;
 
-        // ==========================================
-        // PEMERIKSAAN SETEMPAT (UTUH DARI BEFORE2INDEX)
-        // ==========================================
         case 'ps':
-            let biayaPembPT = 0;
-            let pnbpPembPT = 0;
-            let biayaPembKel = 0;
-            let pnbpPembKel = 0;
-            let biayaPetugas = 0;
-            let biayaTransport = 0;
-
+            let biayaPembPT = 0, pnbpPembPT = 0, biayaPembKel = 0, pnbpPembKel = 0, biayaPetugas = 0, biayaTransport = 0;
             for (let p of dataPihak) {
-                if (p.isRadius1) {
-                    biayaPembPT += 400000;
-                    biayaPembKel += 200000;
-                } else {
-                    biayaPembPT += 500000;
-                    biayaPembKel += 250000;
-                }
-                pnbpPembPT += 20000;
-                pnbpPembKel += 10000;
-                biayaPetugas += 320000;
-                biayaTransport += 1200000;
+                if (p.isRadius1) { biayaPembPT += 400000; biayaPembKel += 200000; } else { biayaPembPT += 500000; biayaPembKel += 250000; }
+                pnbpPembPT += 20000; pnbpPembKel += 10000; biayaPetugas += 320000; biayaTransport += 1200000;
             }
-
             grandTotal = biayaPembPT + pnbpPembPT + biayaPembKel + pnbpPembKel + biayaPetugas + biayaTransport;
-
             htmlDetail = `
                 <tr><td>1. Biaya pemberitahuan pelaksanaan PS ke P & T</td><td class="text-end">Rp ${biayaPembPT.toLocaleString('id-ID')}</td></tr>
                 <tr><td>2. PNBP pemb ke P & T</td><td class="text-end">Rp ${pnbpPembPT.toLocaleString('id-ID')}</td></tr>
                 <tr><td>3. Biaya pemberitahuan pelaksanaan PS ke kelurahan/Desa</td><td class="text-end">Rp ${biayaPembKel.toLocaleString('id-ID')}</td></tr>
                 <tr><td>4. PNBP pemberitahuan ke kelurahan/Desa</td><td class="text-end">Rp ${pnbpPembKel.toLocaleString('id-ID')}</td></tr>
                 <tr><td>5. Biaya petugas kelurahan/Desa *)</td><td class="text-end">Rp ${biayaPetugas.toLocaleString('id-ID')}</td></tr>
-                <tr><td>6. Biaya Transportasi (Sewa Kendaraan, sopir dan BBM) *)</td><td class="text-end">Rp ${biayaTransport.toLocaleString('id-ID')}</td></tr>
-            `;
+                <tr><td>6. Biaya Transportasi (Sewa Kendaraan, sopir dan BBM) *)</td><td class="text-end">Rp ${biayaTransport.toLocaleString('id-ID')}</td></tr>`;
             break;
 
-        // ==========================================
-        // EKSEKUSI (UTUH DARI BEFORE2INDEX)
-        // ==========================================
         case 'eksekusi':
-            const chkAanmaning = document.getElementById('chkAanmaning').checked;
-            const chkSita = document.getElementById('chkSita').checked;
-            const chkRiil = document.getElementById('chkRiil').checked;
-            const chkLelang = document.getElementById('chkLelang').checked;
+            const chkAanmaning = document.getElementById('chkAanmaning').checked, chkSita = document.getElementById('chkSita').checked;
+            const chkRiil = document.getElementById('chkRiil').checked, chkLelang = document.getElementById('chkLelang').checked;
 
-            if (!chkAanmaning && !chkSita && !chkRiil && !chkLelang) {
-                alert("Perhatian: Harap centang minimal satu tahapan pelaksanaan Eksekusi yang ingin dihitung!");
-                return;
-            }
+            if (!chkAanmaning && !chkSita && !chkRiil && !chkLelang) { alert("Perhatian: Harap centang minimal satu tahapan pelaksanaan Eksekusi!"); return; }
 
             let useRadius1 = true;
-            for (let p of dataPihak) {
-                if (p.isRadius1 === false) {
-                    useRadius1 = false;
-                    break;
-                }
-            }
+            for (let p of dataPihak) { if (p.isRadius1 === false) { useRadius1 = false; break; } }
 
             if (chkAanmaning) {
-                const bAanmaning = useRadius1 ? 450000 : 550000;
-                const pAanmaningPT = useRadius1 ? 400000 : 500000;
+                const bAanmaning = useRadius1 ? 450000 : 550000, pAanmaningPT = useRadius1 ? 400000 : 500000;
                 grandTotal += bAanmaning;
                 htmlDetail += `
                     <tr><td colspan="2" class="fw-bold bg-light">I. AANMANING</td></tr>
@@ -1660,21 +1368,17 @@ function hitungEstimasi() {
                     <tr><td>- Panggilan aanmaning ke P & T</td><td class="text-end">Rp ${pAanmaningPT.toLocaleString('id-ID')}</td></tr>
                     <tr><td>- PNBP panggilan aanmaning ke T</td><td class="text-end">Rp 10.000</td></tr>
                     <tr><td>- Berita Acara Teguran (PNBP)</td><td class="text-end">Rp 10.000</td></tr>
-                    <tr><td class="fw-bold">Sub Jumlah Aanmaning</td><td class="text-end fw-bold text-success">Rp ${bAanmaning.toLocaleString('id-ID')}</td></tr>
-                `;
+                    <tr><td class="fw-bold">Sub Jumlah Aanmaning</td><td class="text-end fw-bold text-success">Rp ${bAanmaning.toLocaleString('id-ID')}</td></tr>`;
             }
-
             if (chkSita) {
-                const bSita = useRadius1 ? 3620000 : 3920000;
-                const pSita1 = useRadius1 ? 400000 : 500000;
-                const pSita2 = useRadius1 ? 200000 : 250000;
+                const bSita = useRadius1 ? 3620000 : 3920000, pSita1 = useRadius1 ? 400000 : 500000, pSita2 = useRadius1 ? 200000 : 250000;
                 grandTotal += bSita;
                 htmlDetail += `
                     <tr><td colspan="2" class="fw-bold bg-light">II. SITA EKSEKUSI / PENGANGKATAN SITA EKSEKUSI</td></tr>
                     <tr><td>- Biaya Pendaftaran (PNBP)</td><td class="text-end">Rp 25.000</td></tr>
                     <tr><td>- Penetapan Sita Eksekusi (PNBP)</td><td class="text-end">Rp 10.000</td></tr>
-                    <tr><td>- Biaya Pemberitahuan Pelaksanaan Sita Eksekusi ( P dan T)</td><td class="text-end">Rp ${pSita1.toLocaleString('id-ID')}</td></tr>
-                    <tr><td>- Biaya Pemberitahuan Pelaksanaan Sita Eksekusi ke Lurah/Desa</td><td class="text-end">Rp ${pSita2.toLocaleString('id-ID')}</td></tr>
+                    <tr><td>- Biaya Pemberitahuan Pelaksanaan Sita ( P dan T)</td><td class="text-end">Rp ${pSita1.toLocaleString('id-ID')}</td></tr>
+                    <tr><td>- Biaya Pemberitahuan Pelaksanaan Sita ke Lurah/Desa</td><td class="text-end">Rp ${pSita2.toLocaleString('id-ID')}</td></tr>
                     <tr><td>- Upah Jurusita / Jurusita Pengganti *)</td><td class="text-end">Rp 160.000</td></tr>
                     <tr><td>- Upah 2 (dua) orang Saksi *)</td><td class="text-end">Rp 320.000</td></tr>
                     <tr><td>- Upah Petugas Kelurahan/Desa (2 orang) *)</td><td class="text-end">Rp 320.000</td></tr>
@@ -1690,14 +1394,10 @@ function hitungEstimasi() {
                     <tr><td>- Biaya Transportasi (Sewa Kendaraan, sopir dan BBM) *)</td><td class="text-end">Rp 1.200.000</td></tr>
                     <tr><td>- Biaya Ukur</td><td class="text-end text-muted small">Sesuai Tarif BPN</td></tr>
                     <tr><td>- Biaya Pengamanan</td><td class="text-end text-muted small">Sesuai Kebutuhan</td></tr>
-                    <tr><td class="fw-bold">Sub Jumlah Sita Eksekusi</td><td class="text-end fw-bold text-success">Rp ${bSita.toLocaleString('id-ID')}</td></tr>
-                `;
+                    <tr><td class="fw-bold">Sub Jumlah Sita Eksekusi</td><td class="text-end fw-bold text-success">Rp ${bSita.toLocaleString('id-ID')}</td></tr>`;
             }
-
             if (chkRiil) {
-                const bRiil = useRadius1 ? 8450000 : 9000000;
-                const pRiil1 = useRadius1 ? 400000 : 500000;
-                const pRiil2 = useRadius1 ? 200000 : 250000; 
+                const bRiil = useRadius1 ? 8450000 : 9000000, pRiil1 = useRadius1 ? 400000 : 500000, pRiil2 = useRadius1 ? 200000 : 250000; 
                 grandTotal += bRiil;
                 htmlDetail += `
                     <tr><td colspan="2" class="fw-bold bg-light">III. EKSEKUSI RIIL / PENGOSONGAN</td></tr>
@@ -1705,10 +1405,7 @@ function hitungEstimasi() {
                     <tr><td>- Materai</td><td class="text-end">Rp 10.000</td></tr>
                     <tr><td>- Biaya Pemberitahuan Pelaksanaan Eksekusi ( P dan T)</td><td class="text-end">Rp ${pRiil1.toLocaleString('id-ID')}</td></tr>
                     <tr><td>- Biaya Pemberitahuan Pelaksanaan Eksekusi ke Lurah/Desa</td><td class="text-end">Rp ${pRiil2.toLocaleString('id-ID')}</td></tr>
-                    <tr><td>- Biaya Pemberitahuan Pelaksanaan Eksekusi ke Camat</td><td class="text-end">Rp ${pRiil2.toLocaleString('id-ID')}</td></tr>
-                    <tr><td>- Biaya Pemberitahuan Pelaksanaan Eksekusi ke Kapolsek</td><td class="text-end">Rp ${pRiil2.toLocaleString('id-ID')}</td></tr>
-                    <tr><td>- Biaya Pemberitahuan Pelaksanaan Eksekusi ke Koramil</td><td class="text-end">Rp ${pRiil2.toLocaleString('id-ID')}</td></tr>
-                    <tr><td>- Biaya Pemberitahuan Pelaksanaan Eksekusi ke Kapolres</td><td class="text-end">Rp ${pRiil2.toLocaleString('id-ID')}</td></tr>
+                    <tr><td>- Biaya Pemberitahuan Pelaksanaan Eksekusi ke Camat/Polsek/Danramil dll</td><td class="text-end">Rp ${(pRiil2 * 4).toLocaleString('id-ID')}</td></tr>
                     <tr><td>- Biaya Rapat Koordinasi keamanan dan pelaksanaan Eksekusi</td><td class="text-end">Rp 1.500.000</td></tr>
                     <tr><td>- Biaya Transportasi (Sewa Kendaraan, sopir dan BBM) *)</td><td class="text-end">Rp 1.200.000</td></tr>
                     <tr><td>- Upah Jurusita / Jurusita Pengganti *)</td><td class="text-end">Rp 160.000</td></tr>
@@ -1725,10 +1422,8 @@ function hitungEstimasi() {
                     <tr><td>- Biaya Pencatatan Eksekusi (PNBP)</td><td class="text-end">Rp 25.000</td></tr>
                     <tr><td>- Biaya Ukur</td><td class="text-end text-muted small">Sesuai Tarif BPN</td></tr>
                     <tr><td>- Biaya Pengamanan</td><td class="text-end text-muted small">Sesuai Kebutuhan</td></tr>
-                    <tr><td class="fw-bold">Sub Jumlah Eksekusi Riil</td><td class="text-end fw-bold text-success">Rp ${bRiil.toLocaleString('id-ID')}</td></tr>
-                `;
+                    <tr><td class="fw-bold">Sub Jumlah Eksekusi Riil</td><td class="text-end fw-bold text-success">Rp ${bRiil.toLocaleString('id-ID')}</td></tr>`;
             }
-
             if (chkLelang) {
                 const bLelang = 2760000;
                 grandTotal += bLelang;
@@ -1749,19 +1444,14 @@ function hitungEstimasi() {
                     <tr><td>- PNBP Pembagian hasil lelang</td><td class="text-end">Rp 10.000</td></tr>
                     <tr><td>- Biaya Penyampaian berita acara eksekusi kepada BPN</td><td class="text-end">Rp 250.000</td></tr>
                     <tr><td>- Biaya Penyampaian BA Eksekusi Lelang kepada P, T dan Lurah</td><td class="text-end">Rp 510.000</td></tr>
-                    <tr><td class="fw-bold">Sub Jumlah Eksekusi Lelang</td><td class="text-end fw-bold text-success">Rp ${bLelang.toLocaleString('id-ID')}</td></tr>
-                `;
+                    <tr><td class="fw-bold">Sub Jumlah Eksekusi Lelang</td><td class="text-end fw-bold text-success">Rp ${bLelang.toLocaleString('id-ID')}</td></tr>`;
             }
             break;
     }
     
     document.getElementById("detailBiaya").innerHTML = htmlDetail;
     document.getElementById("totalAkhir").innerText = `Rp ${grandTotal.toLocaleString('id-ID')}`;
-    
-    // Tampilkan Peringatan Luar Jatim jika diperlukan
     document.getElementById("peringatanLuarJatim").style.display = hasLuarJatim ? "block" : "none";
-    
-    // Tampilkan Peringatan Manual (di Luar Surabaya) jika diperlukan
     document.getElementById("peringatanManualLuarSurabaya").style.display = (isManualCase && hasLuarSurabaya) ? "block" : "none";
     
     document.getElementById("resultArea").style.display = "block";
