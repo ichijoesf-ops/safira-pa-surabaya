@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kalkulator Panjar Biaya - PA Surabaya</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@900&family=Montserrat:wght@700&display=swap" rel="stylesheet">
     <style>
         :root {
             --pa-green: #0f5e43;        
@@ -12,7 +13,25 @@
             --pa-soft-green-bg: #f1f8e9; 
             --pa-white-overlay: rgba(255, 255, 255, 0.95);
         }
-        
+        /* Tambahkan di bawah :root atau di dalam tag <style> */
+.title-safira {
+    font-family: 'Merriweather', serif;
+    font-size: 2.5rem;
+    color: var(--pa-gold);
+    letter-spacing: 4px;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    margin: 0;
+}
+
+.subtitle-safira {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: #ffffff;
+    margin-bottom: 0;
+}
         body { 
             background-color: var(--pa-soft-green-bg); 
             font-family: 'Segoe UI', sans-serif; 
@@ -150,18 +169,18 @@
 
 <div class="pa-header">
     <div class="container text-center">
-        <p class="mb-3" style="font-family: 'Traditional Arabic', 'Times New Roman', serif; font-size: 2rem; opacity: 0.9;">
+        <p class="mb-3" style="font-family: 'Traditional Arabic', 'Times New Roman', serif; font-size: 2.2rem; opacity: 0.9;">
             ﷽
         </p>
         
         <div class="row align-items-center justify-content-center">
             <div class="col-auto">
-                <img src="logo-pa.png" alt="Logo PA" style="height: 85px; width: auto; filter: drop-shadow(0px 2px 4px rgba(0,0,0,0.3));">
+                <img src="logo-pa.png" alt="Logo PA" style="height: 105px; width: auto; filter: drop-shadow(0px 4px 8px rgba(0,0,0,0.4));">
             </div>
             
-            <div class="col-auto text-start border-start border-end border-white border-2 px-4 mx-2">
-                <h3 class="fw-bold mb-0" style="letter-spacing: 1px;">SAFIRA</h3>
-                <p class="mb-0 fw-bold small" style="opacity: 0.9;">SISTEM AKSES INFORMASI HITUNG BIAYA PERKARA</p>
+            <div class="col-auto text-start border-start border-white border-2 px-4 mx-2">
+                <h1 class="title-safira">SAFIRA</h1>
+                <p class="subtitle-safira">SISTEM AKSES INFORMASI HITUNG BIAYA PERKARA</p>
                 <p class="mb-0 small text-white-50">Pengadilan Agama Surabaya Kelas IA</p>
             </div>
         </div>
